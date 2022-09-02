@@ -52,7 +52,7 @@ function Detail() {
       <Typography variant="h5">Recommended Minutes</Typography>
       {minutes.map(minute => {
         const img_base64 = `data:image/jpeg;base64,${minute.image}`;
-        const file_path = `/media/minutes/${minute.filename}`;
+        const file_path = `/media/minutes/${minute.filename}#page=${minute.page}`;
         return (
           <Grid container component="li" key={minute.id} sx={{ p: 1, borderBottom: 1, borderColor: 'divider' }}>
             <Grid item md={2} sx={{

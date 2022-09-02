@@ -27,7 +27,7 @@ function Results() {
     <>
       {pdfdocs.map(doc => {
         const img_base64 = `data:image/jpeg;base64,${doc.image}`;
-        const file_path = `/media/inputs/${doc.filename}`;
+        const file_path = `/media/inputs/${doc.filename}#page=${doc.page}`;
         return (
           <Grid container component="li"
             key={doc.id}
