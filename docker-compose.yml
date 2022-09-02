@@ -1,0 +1,77 @@
+version: '3.7'
+volumes:
+  elastic:
+    driver: 'local'
+
+services:
+  elasticsearch:
+    build:
+      context: ./elasticsearch
+      dockerfile: ./Dockerfile
+    image: elasticsearch-kuromoji:8.2.1
+    container_name: elasticsearch
+    environment:
+      - TZ=Asia/Tokyo
+      - ES_JAVA_OPTS=-Xms512m -Xmx1024m
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - http.cors.enabled=true
+      - http.cors.allow-origin="*"
+      - http.cors.allow-credentials=true
+      - http.cors.allow-methods=OPTIONS, HEAD, GET, POST, PUT, DELETE
+      - http.cors.allow-headers=X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept, x-elastic-client-meta
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - elastic:/usr/share/elasticsearch/data
+  pdfindexer:
+    build:
+      context: ./pdf_indexer
+      dockerfile: ./Dockerfile
+    image: pdfindexer
+    container_name: inputindexer
+    volumes:
+      - ./sample:/app/sample:ro
+    environment:
+      - ES_INDEX_NAME=pdfdoc
+      - TARGET_DIRECTORY=sample/inputs
+      - MAPPING_JSON_PATH=es_settings/pdfdoc_mapping.json
+      - SETTING_JSON_PATH=es_settings/pdfdoc_setting.json
+  minuteindexer:
+    image: pdfindexer
+    container_name: minuteindexer
+    volumes:
+      - ./sample:/app/sample:ro
+    environment:
+      - ES_INDEX_NAME=minutes
+      - TARGET_DIRECTORY=sample/minutes
+      - MAPPING_JSON_PATH=es_settings/minutes_mapping.json
+      - SETTING_JSON_PATH=es_settings/minutes_setting.json
+  appapi:
+    build:
+      context: ./appapi
+      dockerfile: ./Dockerfile
+    image: appapi
+    container_name: appapi
+    ports:
+      - 8065:8000
+    depends_on:
+      - elasticsearch
+  front:
+    build:
+      context: ./front
+      dockerfile: ./Dockerfile
+    image: front
+    container_name: front
+    volumes:
+      - ./sample:/usr/share/nginx/html/media:ro
+    ports:
+      - 80:80
+    depends_on:
+      - appapi

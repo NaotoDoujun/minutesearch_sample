@@ -1,0 +1,4 @@
+###### Requirements with Version Specifiers ######`
+pyocr==0.8.3
+pdf2image==1.16.0
+elasticsearch==8.2.0

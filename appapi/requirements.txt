@@ -1,0 +1,4 @@
+###### Requirements with Version Specifiers ######`
+fastapi==0.78.0 
+uvicorn==0.17.6 
+elasticsearch==8.2.0

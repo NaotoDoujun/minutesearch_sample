@@ -1,0 +1,28 @@
+{
+  "properties": {
+    "page": {
+      "type": "integer"
+    },
+    "text": {
+      "type": "text",
+      "analyzer": "pdfdoc_analyzer",
+      "fielddata": true
+    },
+    "image": {
+      "type": "binary"
+    },
+    "filename": {
+      "type": "text",
+      "analyzer": "pdfdoc_analyzer",
+      "fielddata": true,
+      "fields": {
+        "keyword": {
+          "type": "keyword"
+        }
+      }
+    },
+    "path": {
+      "type": "keyword"
+    }
+  }
+}
