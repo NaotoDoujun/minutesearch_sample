@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+from cProfile import label
 import uvicorn
 import logging
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from elasticsearch import Elasticsearch
+import pkg_resources, imp
+import spacy
 
 app = FastAPI()
 app.add_middleware(
@@ -14,6 +17,9 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*']
 )
+
+imp.reload(pkg_resources)
+nlp = spacy.load("ja_core_news_lg")
 
 logger = logging.getLogger('uvicorn')
 es = Elasticsearch("http://elasticsearch:9200", request_timeout=100)
@@ -50,12 +56,19 @@ def pdfdoc_search(id: str = None):
 
 @app.post("/minutes_search/")
 def minutes_search(item: Item):
+    search_words = []
+    doc = nlp(item.text)
+    for ent in doc.ents:
+        #print(ent.text, ent.label_, ent.start_char, ent.end_char)
+        if ent.label_ == 'ORG' or ent.label_ == 'GPE':
+            search_words.append(ent.text)
+
     response = es.search(
         index="minutes",
         size=3,
         query={
           "match": {
-            "text": item.text
+            "text": ' '.join(search_words)
           }
         }
     )
