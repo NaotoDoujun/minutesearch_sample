@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { AppBar, Box, Toolbar, Typography } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 

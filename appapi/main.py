@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from cProfile import label
 import uvicorn
 import logging
 from fastapi import FastAPI
