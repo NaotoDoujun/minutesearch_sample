@@ -14,7 +14,7 @@ def main():
   handler.setFormatter(Formatter('[%(name)s] %(message)s'))
   logger.addHandler(handler)
   logger.setLevel(WARNING)
-  logger.info('The root logger is created.')
+  logger.debug('The root logger is created.')
 
   indexer = pdfindexer.PdfIndexer()
 
@@ -26,23 +26,34 @@ def main():
   
   files = glob.glob("{}/*.pdf".format(config.TARGET_DIRECTORY))
 
-  import_data, count, import_count = [], 1, 0
+  import_data, data_count, import_count = [], 1, 0
   for i, file in enumerate(files):
-    results = indexer.reader.get_texts(file)
-    for result in results:
-      id = hashlib.md5("{}_{}".format(result['path'], result['page']).encode()).hexdigest()
-      if not indexer.exists(config.ES_INDEX_NAME, id):
+    if not indexer.is_indexed(file):
+      results = indexer.reader.get_texts(file)
+      for j, result in enumerate(results):
+        id = hashlib.md5("{}_{}".format(file, result["page"]).encode()).hexdigest()
         import_data.append({'_index': config.ES_INDEX_NAME, '_id': id, '_source': result})
-        if count % 1000 == 0:
+        if data_count % 1000 == 0:
           import_count = indexer.do_bulk_import(import_data, import_count)
-          import_data, count = [], 1
-        elif len(files) == i + 1 and len(import_data) > 1:
-          import_count = indexer.do_bulk_import(import_data, import_count)
-          import_data, count = [], 1
-        elif len(files) == i + 1 and len(import_data) == 1:
+          import_data, data_count = [], 1
+        else:
+          data_count += 1
+
+        if i == len(files) - 1 and j == len(results) - 1:
+          if len(import_data) == 1:
+            indexer.do_create(config.ES_INDEX_NAME, id, result)
+          else:
+            if len(import_data) > 1:
+              import_count = indexer.do_bulk_import(import_data, import_count)
+    else:
+      if i == len(files) - 1:
+        if len(import_data) == 1:
+          id = import_data[0]['_id']
+          result = import_data[0]['_source']
           indexer.do_create(config.ES_INDEX_NAME, id, result)
         else:
-          count += 1
+          if len(import_data) > 1:
+            import_count = indexer.do_bulk_import(import_data, import_count)
 
 if __name__ == "__main__":
   main()

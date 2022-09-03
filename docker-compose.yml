@@ -30,6 +30,16 @@ services:
       - 9300:9300
     volumes:
       - elastic:/usr/share/elasticsearch/data
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:8.2.1
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - I18N_LOCALE=ja-JP
   pdfindexer:
     build:
       context: ./pdf_indexer
@@ -40,9 +50,9 @@ services:
       - ./sample:/app/sample:ro
     environment:
       - ES_INDEX_NAME=pdfdoc
-      - TARGET_DIRECTORY=sample/inputs
-      - MAPPING_JSON_PATH=es_settings/pdfdoc_mapping.json
-      - SETTING_JSON_PATH=es_settings/pdfdoc_setting.json
+      - TARGET_DIRECTORY=/app/sample/inputs
+      - MAPPING_JSON_PATH=/app/es_settings/pdfdoc_mapping.json
+      - SETTING_JSON_PATH=/app/es_settings/pdfdoc_setting.json
   minuteindexer:
     image: pdfindexer
     container_name: minuteindexer
@@ -50,9 +60,9 @@ services:
       - ./sample:/app/sample:ro
     environment:
       - ES_INDEX_NAME=minutes
-      - TARGET_DIRECTORY=sample/minutes
-      - MAPPING_JSON_PATH=es_settings/minutes_mapping.json
-      - SETTING_JSON_PATH=es_settings/minutes_setting.json
+      - TARGET_DIRECTORY=/app/sample/minutes
+      - MAPPING_JSON_PATH=/app/es_settings/minutes_mapping.json
+      - SETTING_JSON_PATH=/app/es_settings/minutes_setting.json
   appapi:
     build:
       context: ./appapi

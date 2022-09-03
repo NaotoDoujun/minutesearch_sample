@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import json, sys, datetime
+import json, sys, hashlib, datetime
 from elasticsearch import Elasticsearch, helpers
 from logging import getLogger, NullHandler, INFO
 import ocr
@@ -40,10 +40,22 @@ class PdfIndexer:
             self.es.indices.create(index=index, mappings=mapping, settings=setting)
 
   def exists(self, index, id):
-      """
-      Check Target id document exists
-      """
-      return self.es.exists(index=index, id=id)
+    """
+    Check Target id document exists
+    """
+    return self.es.exists(index=index, id=id)
+
+  def is_indexed(self, file):
+    """
+    Check the file indexed
+    """
+    pageslen = self.reader.get_page_count(file)
+    is_indexed_file = False
+    for page in range(1, pageslen):
+      id = hashlib.md5("{}_{}".format(file, page).encode()).hexdigest()
+      if self.exists(config.ES_INDEX_NAME, id):
+        is_indexed_file = True
+    return is_indexed_file
 
   def do_create(self, index, id, doc):
     """
