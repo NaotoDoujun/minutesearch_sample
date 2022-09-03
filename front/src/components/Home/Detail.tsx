@@ -30,7 +30,8 @@ function Detail() {
   }, [params])
 
   return (
-    <Box sx={{ p: 2 }}>
+
+    <Box sx={{ flexGrow: 1 }}>
       {pdfdocs.map(doc => {
         const img_base64 = `data:image/jpeg;base64,${doc.image}`;
         return (

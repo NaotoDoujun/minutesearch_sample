@@ -1,6 +1,6 @@
 import { Box, Grid } from '@mui/material';
+import { Outlet } from 'react-router-dom'
 import { SearchAppBar } from '../Common';
-import { Results } from './Results';
 
 function Home() {
   return (
@@ -9,7 +9,7 @@ function Home() {
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
           <Grid item>
-            <Results />
+            <Outlet />
           </Grid>
         </Grid>
       </Box>
