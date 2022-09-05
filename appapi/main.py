@@ -55,29 +55,10 @@ def pdfdoc_search(id: str = None):
 def minutes_search(item: Item):
     search_words = []
     doc = nlp(item.text)
-    # print("*** token ***")
-    # for sent in doc.sents:
-    #     for token in sent:
-    #         print(
-    #             token.i,
-    #             token.orth_,
-    #             token.lemma_,
-    #             token.norm_,
-    #             token.morph.get("Reading"),
-    #             token.pos_,
-    #             token.morph.get("Inflection"),
-    #             token.tag_,
-    #             token.dep_,
-    #             token.head.i,
-    #         )
-
-    print("*** entities ***")
     for ent in doc.ents:
-        print(
-        ent.text+','+
-        ent.label_+','+
-        str(ent.start_char)+','+
-        str(ent.end_char))
+        print(ent.text, ent.label_, ent.start_char, ent.end_char)
+        if ent.label_ == 'Conference' or ent.label_ == 'Date':
+            search_words.append(ent.text)
 
     response = es.search(
         index="minutes",
