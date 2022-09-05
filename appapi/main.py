@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from elasticsearch import Elasticsearch
-import pkg_resources, imp
 import spacy
 
 app = FastAPI()
@@ -17,8 +16,7 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-imp.reload(pkg_resources)
-nlp = spacy.load("ja_core_news_lg")
+nlp = spacy.load("ja_ginza_electra")
 
 logger = logging.getLogger('uvicorn')
 es = Elasticsearch("http://elasticsearch:9200", request_timeout=100)
@@ -57,10 +55,21 @@ def pdfdoc_search(id: str = None):
 def minutes_search(item: Item):
     search_words = []
     doc = nlp(item.text)
-    for ent in doc.ents:
-        #print(ent.text, ent.label_, ent.start_char, ent.end_char)
-        if ent.label_ == 'ORG' or ent.label_ == 'GPE':
-            search_words.append(ent.text)
+    for sent in doc.sents:
+        for token in sent:
+            print(
+                token.i,
+                token.orth_,
+                token.lemma_,
+                token.norm_,
+                token.morph.get("Reading"),
+                token.pos_,
+                token.morph.get("Inflection"),
+                token.tag_,
+                token.dep_,
+                token.head.i,
+            )
+        print('EOS')
 
     response = es.search(
         index="minutes",

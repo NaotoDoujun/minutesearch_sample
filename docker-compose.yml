@@ -51,6 +51,7 @@ services:
     environment:
       - ES_INDEX_NAME=pdfdoc
       - TARGET_DIRECTORY=/app/sample/inputs
+      - TOPPAGE_ONLY=true
       - MAPPING_JSON_PATH=/app/es_settings/pdfdoc_mapping.json
       - SETTING_JSON_PATH=/app/es_settings/pdfdoc_setting.json
   minuteindexer:
@@ -61,6 +62,7 @@ services:
     environment:
       - ES_INDEX_NAME=minutes
       - TARGET_DIRECTORY=/app/sample/minutes
+      - TOPPAGE_ONLY=true
       - MAPPING_JSON_PATH=/app/es_settings/minutes_mapping.json
       - SETTING_JSON_PATH=/app/es_settings/minutes_setting.json
   appapi:
