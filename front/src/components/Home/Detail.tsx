@@ -19,11 +19,11 @@ function Detail() {
   const [minutes, setMinutes] = useState<pdfDoc[]>([])
 
   useEffect(() => {
-    axios.get('http://localhost:8065/search?id=' + params.id)
+    axios.get(`${process.env.REACT_APP_APPAPI_HOST}/search?id=` + params.id)
       .then(doc_res => {
         setPdfDocs(doc_res.data)
         const text = doc_res.data[0].text;
-        axios.post('http://localhost:8065/minutes_search/', { text: text }).then(minute_res => {
+        axios.post(`${process.env.REACT_APP_APPAPI_HOST}/minutes_search/`, { text: text }).then(minute_res => {
           setMinutes(minute_res.data)
         })
       })
@@ -53,7 +53,7 @@ function Detail() {
       <Typography variant="h5">Recommended Minutes</Typography>
       {minutes.map(minute => {
         const img_base64 = `data:image/jpeg;base64,${minute.image}`;
-        const file_path = `/media/minutes/${minute.filename}#page=${minute.page}`;
+        const file_path = `/media/${process.env.REACT_APP_MINUTE_DIR_NAME}/${minute.filename}#page=${minute.page}`;
         return (
           <Grid container component="li" key={minute.id} sx={{ p: 1, borderBottom: 1, borderColor: 'divider' }}>
             <Grid item md={2} sx={{

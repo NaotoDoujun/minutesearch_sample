@@ -79,6 +79,10 @@ services:
     build:
       context: ./front
       dockerfile: ./Dockerfile
+      args:
+        - REACT_APP_APPAPI_HOST=http://localhost:8065
+        - REACT_APP_INPUT_DIR_NAME=inputs
+        - REACT_APP_MINUTE_DIR_NAME=minutes
     image: front
     container_name: front
     volumes:

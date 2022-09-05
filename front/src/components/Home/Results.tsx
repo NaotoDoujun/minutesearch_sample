@@ -17,7 +17,7 @@ function Results() {
   const [pdfdocs, setPdfDocs] = useState<pdfDoc[]>([])
 
   useEffect(() => {
-    axios.get('http://localhost:8065/search')
+    axios.get(`${process.env.REACT_APP_APPAPI_HOST}/search`)
       .then(res => {
         setPdfDocs(res.data)
       })
@@ -27,7 +27,7 @@ function Results() {
     <>
       {pdfdocs.map(doc => {
         const img_base64 = `data:image/jpeg;base64,${doc.image}`;
-        const file_path = `/media/inputs/${doc.filename}#page=${doc.page}`;
+        const file_path = `/media/${process.env.REACT_APP_INPUT_DIR_NAME}/${doc.filename}#page=${doc.page}`;
         return (
           <Grid container component="li"
             key={doc.id}
