@@ -1,6 +1,6 @@
 # minutesearch_sample
 
-using spaCy ginza for named entity recognition on appapi  
+using spaCy GiNZA for named entity recognition on appapi  
 https://github.com/explosion/spaCy
 
 ## Launch
