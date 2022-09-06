@@ -8,6 +8,15 @@
       "analyzer": "pdfdoc_analyzer",
       "fielddata": true
     },
+    "tags": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 256
+        }
+      }
+    },
     "image": {
       "type": "binary"
     },

@@ -7,6 +7,7 @@ type pdfDoc = {
   id: string;
   page: number;
   text: string;
+  tags: string[];
   image: string;
   filename: string;
   path: string;

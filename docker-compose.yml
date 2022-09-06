@@ -2,6 +2,12 @@ version: '3.7'
 volumes:
   elastic:
     driver: 'local'
+  appapi:
+    driver: 'local'
+  inputindexer:
+    driver: 'local'
+  minuteindexer:
+    driver: 'local'
 
 services:
   elasticsearch:
@@ -30,6 +36,16 @@ services:
       - 9300:9300
     volumes:
       - elastic:/usr/share/elasticsearch/data
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:8.2.1
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - I18N_LOCALE=ja-JP
   pdfindexer:
     build:
       context: ./pdf_indexer
@@ -37,6 +53,7 @@ services:
     image: pdfindexer
     container_name: inputindexer
     volumes:
+      - inputindexer:/root/.cache
       - ./sample:/app/sample:ro
     environment:
       - ES_INDEX_NAME=pdfdoc
@@ -48,6 +65,7 @@ services:
     image: pdfindexer
     container_name: minuteindexer
     volumes:
+      - minuteindexer:/root/.cache
       - ./sample:/app/sample:ro
     environment:
       - ES_INDEX_NAME=minutes
@@ -63,6 +81,8 @@ services:
     container_name: appapi
     ports:
       - 8065:8000
+    volumes:
+      - appapi:/root/.cache
     depends_on:
       - elasticsearch
   front:

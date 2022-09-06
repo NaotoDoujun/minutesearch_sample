@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Grid, Typography, Divider, Link } from '@mui/material';
+import { Box, Grid, Typography, Divider, Link, Chip } from '@mui/material';
 import axios from 'axios';
 
 type pdfDoc = {
   id: string;
   page: number;
   text: string;
+  tags: string[];
   image: string;
   filename: string;
   path: string;
@@ -39,6 +40,9 @@ function Detail() {
             <Grid item md={8} sx={{ p: 1 }}>
               <Typography variant="h4">{doc.filename} page:{doc.page}</Typography>
               <Typography component="div" variant="body2">{doc.text}</Typography>
+              <Grid>
+                {doc.tags.map(tag => { return <Chip sx={{ m: 1 }} label={tag} /> })}
+              </Grid>
             </Grid>
             <Grid item md={4} sx={{
               height: 500,
@@ -65,6 +69,9 @@ function Detail() {
             <Grid item md={10} sx={{ px: 2 }}>
               <Typography variant="h5">{minute.filename} page:{minute.page}</Typography>
               <Typography variant="h6">score:{minute.score}</Typography>
+              <Grid>
+                {minute.tags.map(tag => { return <Chip sx={{ m: 1 }} label={tag} /> })}
+              </Grid>
               <Link href={file_path} target="_blank" rel="noopener">{minute.path}</Link>
             </Grid>
           </Grid>

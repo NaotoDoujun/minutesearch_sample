@@ -7,6 +7,7 @@ from pdfminer.pdfpage import PDFPage
 import pyocr
 from PIL import ImageEnhance
 import pdf2image
+import spacy
 from io import BytesIO, StringIO
 from logging import getLogger, NullHandler, INFO
 
@@ -25,6 +26,7 @@ class Ocr:
     tools = pyocr.get_available_tools()
     self.tool = tools[0]
     self.builder = pyocr.builders.TextBuilder(tesseract_layout=6)
+    self.nlp = spacy.load("ja_ginza_electra")
 
   def to_base64(self, image, format="jpeg"):
     buffer = BytesIO()
@@ -32,8 +34,24 @@ class Ocr:
     img_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
     return img_str
 
+  def scale_to_width(self, image, width):
+    height = round(image.height * width / image.width)
+    return image.resize((width, height))
+
+  def scale_to_height(self, image, height):
+    width = round(image.width * height / image.height)
+    return image.resize((width, height))
+
   def pdf2images(self, file):
     return pdf2image.convert_from_path(file, dpi=200, fmt='jpg')
+
+  def make_thumbnail(self, image):
+    resized = self.scale_to_height(image, 1000)
+    return self.to_base64(resized)
+
+  def str_multi2single(self, text):
+    result = text.lower().translate(str.maketrans({chr(0xFF01 + i): chr(0x21 + i) for i in range(94)}))
+    return ''.join(result.split())
 
   def get_page_count(self, file):
     with open(file, 'rb') as fp:
@@ -61,10 +79,19 @@ class Ocr:
       for page in PDFPage.get_pages(fp):
         self.logger.info("processing page is {}".format(page_cnt))
         page_interpreter.process_page(page)
-        img_base64 = self.to_base64(images[page_cnt - 1])
+        img_base64 = self.make_thumbnail(images[page_cnt - 1])
         text = output.getvalue()
         text = text.replace(' ', '')
-        results.append({'page': page_cnt, 'text': text, 'image': img_base64, 'filename': filename, 'path': file})
+        doc = self.nlp(text)
+        tags = [self.str_multi2single(ent.text) for ent in doc.ents]
+        tags = list(set(tags))
+        results.append({
+          'page': page_cnt, 
+          'text': text, 
+          'tags': tags, 
+          'image': img_base64, 
+          'filename': filename, 
+          'path': file})
         page_cnt += 1
         output.truncate(0)
         output.seek(0)
@@ -84,13 +111,22 @@ class Ocr:
     results, page_cnt = [], 1
     for image in images:
       self.logger.info("processing page is {}".format(page_cnt))
-      img_base64 = self.to_base64(image)
+      img_base64 = self.make_thumbnail(image)
       img_g = image.convert('L')
       enhancer= ImageEnhance.Contrast(img_g)
       img_con = enhancer.enhance(2.0)
       text = self.tool.image_to_string(img_con , lang='jpn', builder=self.builder)
       text = text.replace(' ', '')
-      results.append({'page': page_cnt, 'text': text, 'image': img_base64, 'filename': filename, 'path': file})
+      doc = self.nlp(text)
+      tags = [self.str_multi2single(ent.text) for ent in doc.ents]
+      tags = list(set(tags))
+      results.append({
+        'page': page_cnt, 
+        'text': text, 
+        'tags': tags, 
+        'image': img_base64, 
+        'filename': filename, 
+        'path': file})
       page_cnt += 1
     return results
 
