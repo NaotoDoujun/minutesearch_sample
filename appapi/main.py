@@ -26,18 +26,18 @@ def read_root():
     return {"Api": "app api"}
 
 @app.get("/search/")
-def input_search(id: str = None):
+def input_search(id: str = None, param: str = None, size: int = None, start: int = None):
     try:
-        return recommender.input_search(id)
+        return recommender.input_search(id, param, size, start)
     except IndexNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/minutes_search/")
-def minutes_search(item: Item):
+def minutes_search(item: Item, size: int = None, start: int = None):
     try:
-        return recommender.minutes_search(item.text)
+        return recommender.minutes_search(item.text, size, start)
     except IndexNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:

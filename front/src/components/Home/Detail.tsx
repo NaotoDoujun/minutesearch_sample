@@ -2,38 +2,37 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Grid, Typography, Divider, Link, Chip } from '@mui/material';
 import axios from 'axios';
-
-type pdfDoc = {
-  id: string;
-  page: number;
-  text: string;
-  tags: string[];
-  image: string;
-  filename: string;
-  path: string;
-  score: number;
-};
+import { pdfDocs } from '../../types'
 
 function Detail() {
   const params = useParams();
-  const [pdfdocs, setPdfDocs] = useState<pdfDoc[]>([])
-  const [minutes, setMinutes] = useState<pdfDoc[]>([])
+  const [pdfdocs, setPdfDocs] = useState<pdfDocs>({ total: { value: 0, relation: '' }, hits: [] })
+  const [minutes, setMinutes] = useState<pdfDocs>({ total: { value: 0, relation: '' }, hits: [] })
+  const size = 3
 
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_APPAPI_HOST}/search?id=` + params.id)
       .then(doc_res => {
         setPdfDocs(doc_res.data)
-        const text = doc_res.data[0].text;
-        axios.post(`${process.env.REACT_APP_APPAPI_HOST}/minutes_search/`, { text: text }).then(minute_res => {
-          setMinutes(minute_res.data)
-        })
+        // input document's text
+        const text = doc_res.data.hits[0].text;
+        axios.post(`${process.env.REACT_APP_APPAPI_HOST}/minutes_search/?size=${size}`, { text: text })
+          .then(minute_res => {
+            setMinutes(minute_res.data)
+          })
+          .catch(err => {
+            console.log('err:', err);
+          })
+      })
+      .catch(err => {
+        console.log('err:', err);
       })
   }, [params])
 
   return (
 
     <Box sx={{ flexGrow: 1 }}>
-      {pdfdocs.map(doc => {
+      {pdfdocs.hits.map(doc => {
         const img_base64 = `data:image/jpeg;base64,${doc.image}`;
         return (
           <Grid container key={doc.id} sx={{ p: 1 }}>
@@ -55,7 +54,7 @@ function Detail() {
       })}
       <Divider sx={{ m: 1 }} />
       <Typography variant="h5">Recommended Minutes</Typography>
-      {minutes.map(minute => {
+      {minutes.hits.map(minute => {
         const img_base64 = `data:image/jpeg;base64,${minute.image}`;
         const file_path = `/media/${process.env.REACT_APP_MINUTE_DIR_NAME}/${minute.filename}#page=${minute.page}`;
         return (

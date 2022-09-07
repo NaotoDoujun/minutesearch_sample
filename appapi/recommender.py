@@ -19,17 +19,28 @@ class MinuteRecommender():
   def str_multi2single(self, text):
     return ''.join(text.split()).translate(str.maketrans({chr(0xFF01 + i): chr(0x21 + i) for i in range(94)}))
 
-  def input_search(self, id = ''):
+  def input_search(self, id = '', param = '', size = 10, start = 0):
     try:
         if self.es.indices.exists(index=config.INPUT_ES_INDEX_NAME):
             q = {"match_all": {}}
             if id:
-                q = {"term": {"_id": id}}
+                q= {"term": {"_id": id}}
+            else:
+                if param:
+                    q={"multi_match": {
+                        "query": self.str_multi2single(param), 
+                        "fields": [ "filename", "tags" ] 
+                    }}
+            
             response = self.es.search(
                 index=config.INPUT_ES_INDEX_NAME, 
-                query=q
+                query=q,
+                sort=[{"filename": "asc"}],
+                size=size,
+                from_=start
             )
-            results = [
+            total = response['hits']['total']
+            hits = [
                 {
                     'id': row['_id'],
                     'page': row['_source']['page'], 
@@ -42,13 +53,13 @@ class MinuteRecommender():
                 }
                 for row in response['hits']['hits']
             ]
-            return results
+            return {"total": total, "hits": hits}
         else:
             raise IndexNotFoundException("es index {} not found.".format(config.INPUT_ES_INDEX_NAME))
     except:
         raise
 
-  def minutes_search(self, text):
+  def minutes_search(self, text, size = 10, start = 0):
     try:
         if self.es.indices.exists(index=config.MINUTE_ES_INDEX_NAME):
             doc = self.nlp(text)
@@ -56,14 +67,16 @@ class MinuteRecommender():
             self.logger.info("Search Words: {}".format(search_words))
             response = self.es.search(
                 index=config.MINUTE_ES_INDEX_NAME,
-                size=3,
                 query={
-                "match": {
-                    "tags": ' '.join(search_words)
-                }
-                }
+                    "match": {
+                        "tags": ' '.join(search_words)
+                    }
+                },
+                size=size,
+                from_=start
             )
-            results = [
+            total = response['hits']['total']
+            hits = [
                 {
                     'id': row['_id'],
                     'page': row['_source']['page'], 
@@ -77,7 +90,7 @@ class MinuteRecommender():
                 for row in response['hits']['hits']
             ]
 
-            return results
+            return {"total": total, "hits": hits}
         else:
             raise IndexNotFoundException("es index {} not found.".format(config.MINUTE_ES_INDEX_NAME))
     except:
