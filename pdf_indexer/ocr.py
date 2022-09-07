@@ -10,6 +10,7 @@ import pdf2image
 import spacy
 from io import BytesIO, StringIO
 from logging import getLogger, NullHandler, INFO
+import config
 
 class Ocr:
 
@@ -50,8 +51,7 @@ class Ocr:
     return self.to_base64(resized)
 
   def str_multi2single(self, text):
-    result = text.lower().translate(str.maketrans({chr(0xFF01 + i): chr(0x21 + i) for i in range(94)}))
-    return ''.join(result.split())
+    return ''.join(text.split()).translate(str.maketrans({chr(0xFF01 + i): chr(0x21 + i) for i in range(94)}))
 
   def get_page_count(self, file):
     with open(file, 'rb') as fp:
@@ -76,7 +76,10 @@ class Ocr:
       laparams = LAParams()
       text_converter = TextConverter(resource_manager, output, laparams=laparams)
       page_interpreter = PDFPageInterpreter(resource_manager, text_converter)
-      for page in PDFPage.get_pages(fp):
+      pages = list(PDFPage.get_pages(fp))
+      if config.TOPPAGE_ONLY and len(pages) > 1:
+        del pages[1:]
+      for page in pages:
         self.logger.info("processing page is {}".format(page_cnt))
         page_interpreter.process_page(page)
         img_base64 = self.make_thumbnail(images[page_cnt - 1])
@@ -109,6 +112,8 @@ class Ocr:
     self.logger.info("processing file is {}".format(filename))
     images = self.pdf2images(file)
     results, page_cnt = [], 1
+    if config.TOPPAGE_ONLY and len(images) > 1:
+      del images[1:]
     for image in images:
       self.logger.info("processing page is {}".format(page_cnt))
       img_base64 = self.make_thumbnail(image)

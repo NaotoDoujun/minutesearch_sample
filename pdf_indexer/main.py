@@ -30,8 +30,6 @@ def main():
   for i, file in enumerate(files):
     if not indexer.is_indexed(file):
       results = indexer.reader.get_texts(file)
-      if config.TOPPAGE_ONLY and len(results) > 1:
-        del results[1:]
       for j, result in enumerate(results):
         id = hashlib.md5("{}_{}".format(file, result["page"]).encode()).hexdigest()
         import_data.append({'_index': config.ES_INDEX_NAME, '_id': id, '_source': result})

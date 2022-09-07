@@ -4,7 +4,7 @@ COPY requirements.txt .
 RUN pip install --upgrade pip setuptools wheel
 RUN pip install -r requirements.txt --no-cache-dir
 
-# copy main.py
-COPY main.py .
+# copy
+COPY . .
 
 ENTRYPOINT [ "python3", "main.py" ]
