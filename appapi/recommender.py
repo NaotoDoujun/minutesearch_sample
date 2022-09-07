@@ -29,7 +29,7 @@ class MinuteRecommender():
                 if param:
                     q={"multi_match": {
                         "query": self.str_multi2single(param), 
-                        "fields": [ "filename", "tags" ] 
+                        "fields": [ "filename", "text", "tags" ] 
                     }}
             
             response = self.es.search(

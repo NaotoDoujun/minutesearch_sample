@@ -1,5 +1,5 @@
 import { Box, Grid } from '@mui/material';
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom';
 import { SearchAppBar } from '../Common';
 
 function Home() {
@@ -14,6 +14,6 @@ function Home() {
         </Grid>
       </Box>
     </>
-  )
-}
-export { Home }
+  );
+};
+export { Home };

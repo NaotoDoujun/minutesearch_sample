@@ -1,2 +1,2 @@
-export * from './SearchAppBar'
-export * from './AppSettingsContext'
+export * from './SearchAppBar';
+export * from './AppSettingsContext';

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { AppBar, Box, Toolbar, Typography, Drawer, IconButton, TextField } from '@mui/material';
 import { Search as SearchIcon, Settings as SettingsIcon } from '@mui/icons-material';
+import { useNavigate } from "react-router-dom";
 import { styled, alpha } from '@mui/material/styles';
 import { AppSettingsContext } from '.';
 import { Settings } from '../Settings';
@@ -46,7 +47,9 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 }));
 
 function SearchAppBar() {
-  const { isOpenDrawer, setIsOpenDrawer } = React.useContext(AppSettingsContext);
+  const navigate = useNavigate();
+  const { isOpenDrawer, setIsOpenDrawer, searchTerm, setSearchTerm } = React.useContext(AppSettingsContext);
+  const [term, setTerm] = React.useState<string>(searchTerm);
   const toggleDrawer = (open: boolean) =>
     (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
@@ -59,6 +62,16 @@ function SearchAppBar() {
       setIsOpenDrawer(open);
     };
 
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTerm(event.target.value);
+  }
+
+  const handleOnSubmit = (event: React.SyntheticEvent) => {
+    event.preventDefault();
+    setSearchTerm(term);
+    navigate('/', { replace: true });
+  }
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -69,13 +82,15 @@ function SearchAppBar() {
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
-            App Title
+            Minutes Recommender Sample
           </Typography>
           <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledTextField size="small" placeholder="Search…" />
+            <form onSubmit={handleOnSubmit}>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledTextField size="small" placeholder="Search…" value={term} onChange={handleOnChange} />
+            </form>
           </Search>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton onClick={toggleDrawer(true)}><SettingsIcon /></IconButton>

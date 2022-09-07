@@ -9,7 +9,7 @@ const lightTheme = createTheme({
   palette: {
     mode: 'light'
   },
-})
+});
 
 const darkTheme = createTheme({
   palette: {
@@ -20,12 +20,21 @@ const darkTheme = createTheme({
 function App() {
   const isDark = useMediaQuery('(prefers-color-scheme: dark)');
   const [isOpenDrawer, setIsOpenDrawer] = React.useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = React.useState<string>('');
+  const [resultsPerPage, setResultsPerPage] = React.useState<number>(10);
+  const [recommendsSize, setRecommendsSize] = React.useState<number>(3);
   return (
     <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
       <CssBaseline />
       <AppSettingsContext.Provider value={{
         isOpenDrawer,
-        setIsOpenDrawer
+        setIsOpenDrawer,
+        searchTerm,
+        setSearchTerm,
+        resultsPerPage,
+        setResultsPerPage,
+        recommendsSize,
+        setRecommendsSize
       }}>
         <Routes>
           <Route path="/" element={<Home />}>

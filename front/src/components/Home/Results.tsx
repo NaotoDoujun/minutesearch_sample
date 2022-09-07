@@ -1,38 +1,39 @@
-import { useState, useEffect } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Grid, Typography, Link as MuiLink, Pagination } from '@mui/material';
 import axios from 'axios';
+import { AppSettingsContext } from '../Common';
 import { pdfDocs } from '../../types'
 
 function Results() {
-  const [pdfdocs, setPdfDocs] = useState<pdfDocs>({ total: { value: 0, relation: '' }, hits: [] })
-  const [count, setCount] = useState(1)
-  const [page, setPage] = useState(1)
-  const size = 10
+  const { searchTerm, resultsPerPage } = React.useContext(AppSettingsContext);
+  const [pdfdocs, setPdfDocs] = React.useState<pdfDocs>({ total: { value: 0, relation: '' }, hits: [] });
+  const [count, setCount] = React.useState<number>(1);
+  const [page, setPage] = React.useState<number>(1);
 
-  useEffect(() => {
-    axios.get(`${process.env.REACT_APP_APPAPI_HOST}/search?size=${size}`)
+  React.useEffect(() => {
+    axios.get(`${process.env.REACT_APP_APPAPI_HOST}/search?size=${resultsPerPage}&param=${searchTerm}`)
       .then(res => {
-        setPdfDocs(res.data)
-        const total = res.data.total.value
-        if (total > 0) setCount(Math.ceil(total / size))
+        setPdfDocs(res.data);
+        const total = res.data.total.value;
+        if (total > 0) setCount(Math.ceil(total / resultsPerPage));
       })
       .catch(err => {
         console.log('err:', err);
       });
-  }, [])
+  }, [searchTerm, resultsPerPage]);
 
   const handlePageChange = (e: React.ChangeEvent<unknown>, page: number) => {
-    setPage(page)
-    const start = size * (page - 1)
-    axios.get(`${process.env.REACT_APP_APPAPI_HOST}/search?size=${size}&start=${start}`)
+    setPage(page);
+    const start = resultsPerPage * (page - 1);
+    axios.get(`${process.env.REACT_APP_APPAPI_HOST}/search?size=${resultsPerPage}&start=${start}`)
       .then(res => {
-        setPdfDocs(res.data)
+        setPdfDocs(res.data);
       })
       .catch(err => {
         console.log('err:', err);
       });
-  }
+  };
 
   return (
     <>
@@ -61,6 +62,6 @@ function Results() {
         {pdfdocs.hits.length > 0 ? <Pagination sx={{ display: 'inline-block' }} count={count} page={page} onChange={handlePageChange} /> : <></>}
       </div>
     </>
-  )
-}
-export { Results }
+  );
+};
+export { Results };
