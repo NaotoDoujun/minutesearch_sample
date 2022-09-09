@@ -27,8 +27,10 @@ class MinuteRecommender():
                 q= {"term": {"_id": id}}
             else:
                 if param:
+                    terms = [self.str_multi2single(term) for term in param.split()]
+                    self.logger.info("Search Terms: {}".format(terms))
                     q={"multi_match": {
-                        "query": self.str_multi2single(param), 
+                        "query": ' '.join(terms), 
                         "fields": [ "filename", "text", "tags" ] 
                     }}
             
@@ -63,13 +65,13 @@ class MinuteRecommender():
     try:
         if self.es.indices.exists(index=config.MINUTE_ES_INDEX_NAME):
             doc = self.nlp(text)
-            search_words = [self.str_multi2single(ent.text) for ent in doc.ents if ent.label_ == self.TARGET_LABEL]
-            self.logger.info("Search Words: {}".format(search_words))
+            terms = [self.str_multi2single(ent.text) for ent in doc.ents if ent.label_ == self.TARGET_LABEL]
+            self.logger.info("Search Terms: {}".format(terms))
             response = self.es.search(
                 index=config.MINUTE_ES_INDEX_NAME,
                 query={
                     "match": {
-                        "tags": ' '.join(search_words)
+                        "tags": ' '.join(terms)
                     }
                 },
                 size=size,
