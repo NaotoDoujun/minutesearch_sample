@@ -111,3 +111,17 @@ services:
     depends_on:
       - appapi
     restart: always
+  boltapp:
+    build:
+      context: ./boltapp
+      dockerfile: ./Dockerfile
+      args:
+        - SLACK_BOT_TOKEN=<your bot token>
+        - SLACK_SIGNING_SECRET=<your signing secret>
+        - SLACK_APP_TOKEN=<your app token>
+    image: boltapp
+    container_name: boltapp
+    ports:
+      - 3000:3000
+    depends_on:
+      - appapi
