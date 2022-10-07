@@ -24,7 +24,7 @@ const recommendSize = 10;
 // Listens to incoming messages
 app.message('', async ({ message, say }) => {
 
-  await axios.post(`http://appapi:8000/minutes_search/?size=${recommendSize}`, { text: message })
+  await axios.post(`http://appapi:8000/minutes_search/?size=${recommendSize}`, { text: message.text })
     .then(async res => {
       const total = res.data.total;
       const blocks = [{
