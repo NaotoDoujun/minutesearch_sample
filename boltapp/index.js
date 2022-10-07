@@ -17,46 +17,52 @@ const app = new App({
   port: process.env.PORT || 3000
 });
 
-// Listens to incoming messages that contain "hello"
-app.message([], async ({ message, say }) => {
+const filehost = "http://localhost";
+const filedir = "sample";
+const recommendSize = 10;
 
-  await axios.post('http://appapi:8000/minutes_search', { text: message })
+// Listens to incoming messages
+app.message('', async ({ message, say }) => {
+
+  await axios.post(`http://appapi:8000/minutes_search/?size=${recommendSize}`, { text: message })
     .then(async res => {
-
-      console.log(res.data);
-
-      // say() sends a message to the channel where the event was triggered
-      await say({
-        blocks: [
+      const total = res.data.total;
+      const blocks = [{
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": `recommends count:${res.data.hits.length}`
+        }
+      }];
+      for (const i in res.data.hits) {
+        const recommend = res.data.hits[i];
+        const file_path = `${filehost}/media/${filedir}/${recommend.filename}#page=${recommend.page}`;
+        blocks.push(
           {
             "type": "section",
             "text": {
               "type": "mrkdwn",
-              "text": `Hey there <@${message.user}>!`
-            },
-            "accessory": {
-              "type": "button",
-              "text": {
-                "type": "plain_text",
-                "text": "Click Me"
-              },
-              "action_id": "button_click"
+              "text": `<${file_path}|${recommend.filename}> score:[${recommend.score}]`
             }
+          },
+          {
+            "type": "divider"
           }
-        ],
-        text: `Hey there <@${message.user}>!`
-      });
+        );
+      }
+
+      // say() sends a message to the channel where the event was triggered
+      if (total.value > 0) {
+        await say({
+          blocks: blocks,
+          text: `recommended minute was ${total.value}`
+        });
+      }
 
     }).catch(err => {
       console.error(err);
     });
 
-});
-
-app.action('button_click', async ({ body, ack, say }) => {
-  // Acknowledge the action
-  await ack();
-  await say(`<@${body.user.id}> clicked the button`);
 });
 
 (async () => {
