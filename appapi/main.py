@@ -5,9 +5,14 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from recommender import MinuteRecommender, IndexNotFoundException
+import robertaQA
 
 class Item(BaseModel):
     text: str
+
+class QAItem(BaseModel):
+    question: str
+    context: str
 
 app = FastAPI()
 app.add_middleware(
@@ -20,6 +25,7 @@ app.add_middleware(
 
 logger = logging.getLogger('uvicorn')
 recommender = MinuteRecommender(logger)
+roberta_qa = robertaQA.robertaQA(logger)
 
 @app.get("/")
 def read_root():
@@ -40,6 +46,13 @@ def minutes_search(item: Item, size: int = None, start: int = None):
         return recommender.minutes_search(item.text, size, start)
     except IndexNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/question_answer/")
+def question_answer(qa_item: QAItem):
+    try:
+        return roberta_qa.predict(qa_item.question, qa_item.context)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
