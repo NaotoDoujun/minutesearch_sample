@@ -11,6 +11,7 @@ fugashi[unidic-lite]==1.2.0
 sentencepiece==0.1.97
 torch==1.12.1
 simpletransformers==0.63.9
+sentence-transformers==2.2.2
 pyknp==0.6.1
 fastapi==0.78.0 
 uvicorn==0.17.6 

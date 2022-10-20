@@ -4,15 +4,10 @@ import logging
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from recommender import MinuteRecommender, IndexNotFoundException
-import robertaQA
+from recommender import MinuteRecommender, TroubleShootRecommender, IndexNotFoundException
 
 class Item(BaseModel):
     text: str
-
-class QAItem(BaseModel):
-    question: str
-    context: str
 
 app = FastAPI()
 app.add_middleware(
@@ -24,8 +19,8 @@ app.add_middleware(
 )
 
 logger = logging.getLogger('uvicorn')
-recommender = MinuteRecommender(logger)
-roberta_qa = robertaQA.robertaQA(logger)
+minute_recommender = MinuteRecommender(logger)
+troubleshoot_recommender = TroubleShootRecommender(logger)
 
 @app.get("/")
 def read_root():
@@ -34,7 +29,7 @@ def read_root():
 @app.get("/search/")
 def input_search(id: str = None, param: str = None, size: int = None, start: int = None):
     try:
-        return recommender.input_search(id, param, size, start)
+        return minute_recommender.input_search(id, param, size, start)
     except IndexNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -43,16 +38,18 @@ def input_search(id: str = None, param: str = None, size: int = None, start: int
 @app.post("/minutes_search/")
 def minutes_search(item: Item, size: int = None, start: int = None):
     try:
-        return recommender.minutes_search(item.text, size, start)
+        return minute_recommender.minutes_search(item.text, size, start)
     except IndexNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/question_answer/")
-def question_answer(qa_item: QAItem):
+@app.post("/troubles_search/")
+def troubles_search(item: Item):
     try:
-        return roberta_qa.predict(qa_item.question, qa_item.context)
+        return troubleshoot_recommender.troubles_search(item.text)
+    except IndexNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

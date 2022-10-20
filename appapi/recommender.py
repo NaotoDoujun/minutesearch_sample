@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from elasticsearch import Elasticsearch
 import spacy
+from sentence_transformers import SentenceTransformer
 import config
 
 class IndexNotFoundException(Exception):
@@ -95,5 +96,49 @@ class MinuteRecommender():
             return {"total": total, "hits": hits}
         else:
             raise IndexNotFoundException("es index {} not found.".format(config.MINUTE_ES_INDEX_NAME))
+    except:
+        raise
+
+class TroubleShootRecommender():
+    
+  def __init__(self, logger):
+    self.logger = logger
+    self.model = SentenceTransformer(config.SENTENCE_MODEL)
+    self.es = Elasticsearch(config.ES_ENDPOINT, request_timeout=100)
+
+  def str_multi2single(self, text):
+    return ''.join(text.split()).translate(str.maketrans({chr(0xFF01 + i): chr(0x21 + i) for i in range(94)}))
+
+  def troubles_search(self, text, size = 3):
+    try:
+        if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
+            embedding = self.model.encode(self.str_multi2single(text))
+            script_query = {
+                "script_score": {
+                    "query": {"match_all": {}},
+                    "script": {
+                        "source": "cosineSimilarity(params.query_vector, 'trouble_vector') + 1.0",
+                        "params": {"query_vector": embedding}
+                    }
+                }
+            }
+            response = self.es.search(
+                index=config.TROUBLE_ES_INDEX_NAME,
+                size=size,
+                query=script_query
+            )
+            total = response['hits']['total']
+            hits = [
+                {
+                    'trouble': row['_source']['trouble'], 
+                    'cause': row['_source']['cause'], 
+                    'response': row['_source']['response'],
+                    'score': row['_score'],
+                }
+                for row in response['hits']['hits']
+            ]
+            return {"total": total, "hits": hits}
+        else:
+            raise IndexNotFoundException("es index {} not found.".format(config.TROUBLE_ES_INDEX_NAME))    
     except:
         raise

@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "trouble": {
+      "type": "text",
+      "analyzer": "troubles_analyzer",
+      "fielddata": true
+    },
+    "trouble_vector": {
+      "type": "dense_vector",
+      "dims": 768
+    },
+    "cause": {
+      "type": "text",
+      "analyzer": "troubles_analyzer",
+      "fielddata": true
+    },
+    "response": {
+      "type": "text",
+      "analyzer": "troubles_analyzer",
+      "fielddata": true
+    }
+  }
+}

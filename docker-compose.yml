@@ -8,6 +8,8 @@ volumes:
     driver: 'local'
   minuteindexer:
     driver: 'local'
+  troubleindexer:
+    driver: 'local'
 
 services:
   elasticsearch:
@@ -78,6 +80,25 @@ services:
       - TOPPAGE_ONLY=true
       - MAPPING_JSON_PATH=/app/es_settings/minutes_mapping.json
       - SETTING_JSON_PATH=/app/es_settings/minutes_setting.json
+    depends_on:
+      - elasticsearch
+    restart: always
+  troubleindexer:
+    build:
+      context: ./excel_indexer
+      dockerfile: ./Dockerfile
+    image: excelindexer
+    container_name: troubleindexer
+    volumes:
+      - troubleindexer:/root/.cache
+      - ./sample:/app/sample:ro
+    environment:
+      - ES_INDEX_NAME=troubles
+      - TARGET_DIRECTORY=/app/sample/troubles
+      - MAPPING_JSON_PATH=/app/es_settings/troubles_mapping.json
+      - SETTING_JSON_PATH=/app/es_settings/troubles_setting.json
+      - SKIP_ROWS=0
+      - USE_COLS=0,1,2
     depends_on:
       - elasticsearch
     restart: always
