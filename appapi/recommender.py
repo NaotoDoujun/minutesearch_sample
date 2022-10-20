@@ -109,7 +109,7 @@ class TroubleShootRecommender():
   def str_multi2single(self, text):
     return ''.join(text.split()).translate(str.maketrans({chr(0xFF01 + i): chr(0x21 + i) for i in range(94)}))
 
-  def troubles_search(self, text, size = 3):
+  def troubles_search(self, text, size = 10):
     try:
         if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
             embedding = self.model.encode(self.str_multi2single(text))
