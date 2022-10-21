@@ -136,10 +136,6 @@ services:
     build:
       context: ./boltapp
       dockerfile: ./Dockerfile
-      args:
-        - SLACK_BOT_TOKEN=<your bot token>
-        - SLACK_SIGNING_SECRET=<your signing secret>
-        - SLACK_APP_TOKEN=<your app token>
     image: boltapp
     container_name: boltapp
     ports:
