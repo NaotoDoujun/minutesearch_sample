@@ -91,10 +91,10 @@ services:
     container_name: troubleindexer
     volumes:
       - troubleindexer:/root/.cache
-      - ./sample:/app/sample:ro
+      - ./infopost:/app/infopost:ro
     environment:
       - ES_INDEX_NAME=troubles
-      - TARGET_DIRECTORY=/app/sample/troubles
+      - TARGET_DIRECTORY=/app/infopost
       - MAPPING_JSON_PATH=/app/es_settings/troubles_mapping.json
       - SETTING_JSON_PATH=/app/es_settings/troubles_setting.json
       - SKIP_ROWS=0
