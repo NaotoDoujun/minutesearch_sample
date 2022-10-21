@@ -1,4 +1,4 @@
-FROM node:16.13.0-slim
+FROM node:18.3.0-slim
 
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH

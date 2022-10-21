@@ -1,4 +1,4 @@
-FROM node:16.13.0-slim AS build
+FROM node:18.3.0-slim AS build
 
 RUN mkdir /usr/src/app
 WORKDIR /usr/src/app

@@ -1,4 +1,3 @@
 # Replace with your tokens
 SLACK_BOT_TOKEN=<your bot token> # from the OAuth section
-SLACK_SIGNING_SECRET=<your signing secret> # from the Basic Info App Token Section
 SLACK_APP_TOKEN=<your app token> # App level Tokens
