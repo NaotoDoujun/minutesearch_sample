@@ -1,5 +1,6 @@
 ###### Requirements without Version Specifiers ######`
 datasets
+mojimoji
 ###### Requirements with Version Specifiers ######`
 fastapi==0.78.0 
 uvicorn==0.17.6 

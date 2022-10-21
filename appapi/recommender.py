@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from elasticsearch import Elasticsearch
+import mojimoji
 import spacy
 from sentence_transformers import SentenceTransformer
 import config
@@ -106,13 +107,10 @@ class TroubleShootRecommender():
     self.model = SentenceTransformer(config.SENTENCE_MODEL)
     self.es = Elasticsearch(config.ES_ENDPOINT, request_timeout=100)
 
-  def str_multi2single(self, text):
-    return ''.join(text.split()).translate(str.maketrans({chr(0xFF01 + i): chr(0x21 + i) for i in range(94)}))
-
-  def troubles_search(self, text, size = 10):
+  def troubles_search(self, text, size = 10, min_score = 1.6):
     try:
         if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
-            embedding = self.model.encode(self.str_multi2single(text))
+            embedding = self.model.encode(mojimoji.zen_to_han(mojimoji.han_to_zen(text, digit=False, ascii=False), kana=False))
             script_query = {
                 "script_score": {
                     "query": {"match_all": {}},
@@ -125,6 +123,7 @@ class TroubleShootRecommender():
             response = self.es.search(
                 index=config.TROUBLE_ES_INDEX_NAME,
                 size=size,
+                min_score=min_score,
                 query=script_query
             )
             total = response['hits']['total']

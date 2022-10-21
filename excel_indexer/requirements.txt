@@ -2,6 +2,7 @@
 pandas
 openpyxl
 nkf
+mojimoji
 ###### Requirements with Version Specifiers ######`
 sentence-transformers==2.2.2
 elasticsearch==8.4.3

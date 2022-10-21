@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import nkf
+import mojimoji
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 from logging import getLogger, NullHandler, INFO
@@ -13,9 +14,6 @@ class Reader:
     self.logger.setLevel(INFO)
     self.logger.propagate = True
     self.model = SentenceTransformer(config.SENTENCE_MODEL)
-
-  def str_multi2single(self, text):
-    return ''.join(text.split()).translate(str.maketrans({chr(0xFF01 + i): chr(0x21 + i) for i in range(94)}))
 
   def change_charset(self, text, output_encode = 'utf-8'):
     input_encode = nkf.guess(text).lower()
@@ -44,18 +42,18 @@ class Reader:
     return self.model.encode(sentence)
 
   def read(self, file):
-    self.logger.info("processing read()")
+    self.logger.info("processing read() {}".format(file))
     skiprows = None if config.SKIP_ROWS == None else [int(s) for s in config.SKIP_ROWS.split(",")]
     usecols = None if config.USE_COLS == None else [int(s) for s in config.USE_COLS.split(",")]
     df_sheet = pd.read_excel(file, sheet_name=0, skiprows=skiprows, usecols=usecols, 
       header=None, names=['trouble', 'cause', 'response'])
     results = []
     for row in df_sheet.itertuples():
-      trouble = self.str_multi2single(self.change_charset(row.trouble))
+      trouble = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.trouble), digit=False, ascii=False), kana=False)
       results.append({
-        'trouble': trouble, 
+        'trouble': trouble,  
         'trouble_vector': self.to_vector(trouble), 
-        'cause': self.change_charset(row.cause), 
-        'response': self.change_charset(row.response)
+        'cause': mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.cause), digit=False, ascii=False), kana=False), 
+        'response': mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.response), digit=False, ascii=False), kana=False)
         })
     return results

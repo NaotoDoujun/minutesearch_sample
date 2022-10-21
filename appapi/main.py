@@ -45,9 +45,9 @@ def minutes_search(item: Item, size: int = None, start: int = None):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/troubles_search/")
-def troubles_search(item: Item, size: int = None):
+def troubles_search(item: Item, size: int = None, min_score: float = None):
     try:
-        return troubleshoot_recommender.troubles_search(item.text, size)
+        return troubleshoot_recommender.troubles_search(item.text, size, min_score)
     except IndexNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
