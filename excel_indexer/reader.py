@@ -16,6 +16,10 @@ class Reader:
     self.model = SentenceTransformer(config.SENTENCE_MODEL)
 
   def change_charset(self, text, output_encode = 'utf-8'):
+    if type(text) is not str:
+      return str(text)
+    if not text: 
+      return text
     input_encode = nkf.guess(text).lower()
     if input_encode == output_encode.lower():
       return text
@@ -50,10 +54,12 @@ class Reader:
     results = []
     for row in df_sheet.itertuples():
       trouble = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.trouble), digit=False, ascii=False), kana=False)
+      cause = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.cause), digit=False, ascii=False), kana=False)
+      response = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.response), digit=False, ascii=False), kana=False)
       results.append({
         'trouble': trouble,  
         'trouble_vector': self.to_vector(trouble), 
-        'cause': mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.cause), digit=False, ascii=False), kana=False), 
-        'response': mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.response), digit=False, ascii=False), kana=False)
+        'cause': cause, 
+        'response': response
         })
     return results
