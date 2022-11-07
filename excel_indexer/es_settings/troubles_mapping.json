@@ -1,5 +1,17 @@
 {
   "properties": {
+    "trouble_header": {
+      "type": "text",
+      "analyzer": "troubles_analyzer"
+    },
+    "cause_header": {
+      "type": "text",
+      "analyzer": "troubles_analyzer"
+    },
+    "response_header": {
+      "type": "text",
+      "analyzer": "troubles_analyzer"
+    },
     "trouble": {
       "type": "text",
       "analyzer": "troubles_analyzer",

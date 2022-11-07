@@ -16,7 +16,7 @@ services:
     build:
       context: ./elasticsearch
       dockerfile: ./Dockerfile
-    image: elasticsearch-kuromoji:8.4.3
+    image: elasticsearch-kuromoji:8.2.1
     container_name: elasticsearch
     environment:
       - TZ=Asia/Tokyo
@@ -41,7 +41,7 @@ services:
     restart: always
   kibana:
     container_name: kibana
-    image: docker.elastic.co/kibana/kibana:8.4.3
+    image: docker.elastic.co/kibana/kibana:8.2.1
     ports:
       - 5601:5601
     environment:
@@ -97,7 +97,6 @@ services:
       - TARGET_DIRECTORY=/app/infopost
       - MAPPING_JSON_PATH=/app/es_settings/troubles_mapping.json
       - SETTING_JSON_PATH=/app/es_settings/troubles_setting.json
-      - SKIP_ROWS=0
       - USE_COLS=0,1,2
     depends_on:
       - elasticsearch

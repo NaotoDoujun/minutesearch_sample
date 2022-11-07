@@ -4,7 +4,7 @@ mojimoji
 ###### Requirements with Version Specifiers ######`
 fastapi==0.78.0 
 uvicorn==0.17.6 
-elasticsearch==8.4.3
+elasticsearch==8.2.1
 spacy==3.4.1
 ja-ginza-electra==5.1.2
 ipadic==1.0.0

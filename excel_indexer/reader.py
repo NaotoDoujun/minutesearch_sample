@@ -17,9 +17,9 @@ class Reader:
 
   def change_charset(self, text, output_encode = 'utf-8'):
     if type(text) is not str:
-      return str(text)
+      return ''
     if not text: 
-      return text
+      return ''
     input_encode = nkf.guess(text).lower()
     if input_encode == output_encode.lower():
       return text
@@ -47,19 +47,31 @@ class Reader:
 
   def read(self, file):
     self.logger.info("processing read() {}".format(file))
-    skiprows = None if config.SKIP_ROWS == None else [int(s) for s in config.SKIP_ROWS.split(",")]
     usecols = None if config.USE_COLS == None else [int(s) for s in config.USE_COLS.split(",")]
-    df_sheet = pd.read_excel(file, sheet_name=0, skiprows=skiprows, usecols=usecols, 
-      header=None, names=['trouble', 'cause', 'response'])
+    df_sheet = pd.read_excel(file, sheet_name=0, usecols=usecols, 
+      header=None, names=[config.HEADER_TROUBLE, config.HEADER_CAUSE, config.HEADER_RESPONSE])
+    header = {
+      'trouble_header': config.HEADER_TROUBLE,
+      'cause_header': config.HEADER_CAUSE,
+      'response_header': config.HEADER_RESPONSE
+    }
     results = []
-    for row in df_sheet.itertuples():
+    for i, row in enumerate(df_sheet.itertuples()):
       trouble = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.trouble), digit=False, ascii=False), kana=False)
       cause = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.cause), digit=False, ascii=False), kana=False)
       response = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.response), digit=False, ascii=False), kana=False)
-      results.append({
-        'trouble': trouble,  
-        'trouble_vector': self.to_vector(trouble), 
-        'cause': cause, 
-        'response': response
-        })
+      if (i == 0):
+        header['trouble_header'] = trouble
+        header['cause_header'] = cause
+        header['response_header'] = response
+      else:
+        results.append({
+          'trouble_header': header['trouble_header'],
+          'cause_header': header['cause_header'],
+          'response_header': header['response_header'],
+          'trouble': trouble,
+          'trouble_vector': self.to_vector(trouble),
+          'cause': cause,
+          'response': response
+          })
     return results

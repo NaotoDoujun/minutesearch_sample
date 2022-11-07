@@ -129,6 +129,9 @@ class TroubleShootRecommender():
             total = response['hits']['total']
             hits = [
                 {
+                    'trouble_header': row['_source']['trouble_header'],
+                    'cause_header': row['_source']['cause_header'],
+                    'response_header': row['_source']['response_header'],
                     'trouble': row['_source']['trouble'], 
                     'cause': row['_source']['cause'], 
                     'response': row['_source']['response'],
