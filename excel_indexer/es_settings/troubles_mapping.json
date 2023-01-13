@@ -15,6 +15,7 @@
     "trouble": {
       "type": "text",
       "analyzer": "troubles_analyzer",
+      "similarity": "scripted_tfidf",
       "fielddata": true
     },
     "trouble_vector": {

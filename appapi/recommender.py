@@ -110,12 +110,17 @@ class TroubleShootRecommender():
   def troubles_search(self, text, size = 10, min_score = 1.6):
     try:
         if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
-            embedding = self.model.encode(mojimoji.zen_to_han(mojimoji.han_to_zen(text, digit=False, ascii=False), kana=False))
+            query = mojimoji.zen_to_han(mojimoji.han_to_zen(text, digit=False, ascii=False), kana=False)
+            embedding = self.model.encode(query)
             script_query = {
                 "script_score": {
-                    "query": {"match_all": {}},
+                     "query": {
+                        "match": {
+                            "trouble": query
+                        }
+                    },
                     "script": {
-                        "source": "cosineSimilarity(params.query_vector, 'trouble_vector') + 1.0",
+                        "source": "(_score + (cosineSimilarity(params.query_vector, 'trouble_vector') + 1.0))/2",
                         "params": {"query_vector": embedding}
                     }
                 }
