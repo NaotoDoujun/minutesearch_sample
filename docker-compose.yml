@@ -38,6 +38,7 @@ services:
       - 9300:9300
     volumes:
       - elastic:/usr/share/elasticsearch/data
+      - kuromoji-user.dic:/usr/share/elasticsearch/config/kuromoji-user.dic:ro
     restart: always
   kibana:
     container_name: kibana

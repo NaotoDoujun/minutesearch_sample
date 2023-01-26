@@ -11,13 +11,21 @@
     }
   },
   "analysis": {
+    "tokenizer": {
+      "kuromoji_user_dict": {
+        "type": "kuromoji_tokenizer",
+        "mode": "extended",
+        "discard_punctuation": "false",
+        "user_dictionary": "kuromoji-user.dic"
+      }
+    },
     "analyzer": {
       "troubles_analyzer": {
         "type": "custom",
         "char_filter": [
           "icu_normalizer"
         ],
-        "tokenizer": "kuromoji_tokenizer",
+        "tokenizer": "kuromoji_user_dict",
         "filter": [
           "kuromoji_baseform",
           "kuromoji_part_of_speech",
