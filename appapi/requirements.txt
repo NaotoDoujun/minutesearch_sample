@@ -6,6 +6,7 @@ fastapi==0.78.0
 uvicorn==0.17.6 
 elasticsearch==8.2.1
 spacy==3.4.1
+spacy_download==1.1.0
 ja-ginza-electra==5.1.2
 ipadic==1.0.0
 fugashi[unidic-lite]==1.2.0
@@ -13,6 +14,9 @@ sentencepiece==0.1.97
 torch==1.12.1
 simpletransformers==0.63.9
 sentence-transformers==2.2.2
+sumy==0.11.0
+tinysegmenter==0.4
+langid==1.1.6
 pyknp==0.6.1
 fastapi==0.78.0 
 uvicorn==0.17.6 

@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from recommender import MinuteRecommender, TroubleShootRecommender, IndexNotFoundException
+from summarizer import SUMYSummarizer, AlgorithmName
 
 class Item(BaseModel):
     text: str
@@ -21,6 +22,7 @@ app.add_middleware(
 logger = logging.getLogger('uvicorn')
 minute_recommender = MinuteRecommender(logger)
 troubleshoot_recommender = TroubleShootRecommender(logger)
+text_summarizer = SUMYSummarizer(logger)
 
 @app.get("/")
 def read_root():
@@ -50,6 +52,13 @@ def troubles_search(item: Item, size: int = None, min_score: float = None):
         return troubleshoot_recommender.troubles_search(item.text, size, min_score)
     except IndexNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/text_summarize/{algorithm}")
+def text_summarize(item: Item, algorithm: AlgorithmName):
+    try:
+        return text_summarizer.summarize(text=item.text, algorithm=algorithm.value)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -15,7 +15,7 @@ class MinuteRecommender():
 
   def __init__(self, logger):
     self.logger = logger
-    self.nlp = spacy.load("ja_ginza_electra")
+    self.nlp = spacy.load(config.GINZA_MODEL)
     self.es = Elasticsearch(config.ES_ENDPOINT, request_timeout=100)
 
   def str_multi2single(self, text):

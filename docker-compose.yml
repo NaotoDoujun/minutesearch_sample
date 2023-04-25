@@ -10,6 +10,8 @@ volumes:
     driver: 'local'
   troubleindexer:
     driver: 'local'
+  mongodata:
+    driver: 'local'
 
 services:
   elasticsearch:
@@ -142,3 +144,14 @@ services:
       - 3000:3000
     depends_on:
       - appapi
+  mongo:
+    container_name: mongo
+    image: mongo:5.0.16-focal
+    environment:
+      - TZ=Asia/Tokyo
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - ./configdb:/data/configdb
+      - mongodata:/data/db
+    restart: always
