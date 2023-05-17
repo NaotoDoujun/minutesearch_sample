@@ -96,11 +96,13 @@ services:
       - troubleindexer:/root/.cache
       - ./infopost:/app/infopost:ro
     environment:
-      - ES_INDEX_NAME=troubles
-      - TARGET_DIRECTORY=/app/infopost
-      - MAPPING_JSON_PATH=/app/es_settings/troubles_mapping.json
-      - SETTING_JSON_PATH=/app/es_settings/troubles_setting.json
-      - USE_COLS=0,1,2
+      ES_INDEX_NAME: troubles
+      TARGET_DIRECTORY: /app/infopost/troubles
+      MAPPING_JSON_PATH: /app/es_settings/troubles_mapping.json
+      SETTING_JSON_PATH: /app/es_settings/troubles_setting.json
+      HEADER_MAPPING: '{"trouble_header": 0, "cause_header": 1, "response_header": 2}'
+      DATA_MAPPING: '{"trouble": 0, "cause": 1, "response": 2}'
+      EMBEDDING_COLUMNS: '{"trouble_vector": 0}'
     depends_on:
       - elasticsearch
     restart: always

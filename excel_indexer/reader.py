@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import json
 import nkf
 import mojimoji
+from jsonmerge import merge
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 from logging import getLogger, NullHandler, INFO
@@ -45,33 +47,52 @@ class Reader:
   def to_vector(self, sentence):
     return self.model.encode(sentence)
 
+  def header_format(self, row, header_mapping, mapping):
+    format = {}
+    if header_mapping is not None:
+      for key in header_mapping.keys():
+        if key in mapping['properties']:
+          index = int(header_mapping.get(key)) + 1
+          format[key] = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row[index]), digit=False, ascii=False), kana=False)
+        else:
+          raise ValueError("property {} not exist on mapping.json.".format(key))
+    return format
+
+  def data_format(self, row, data_mapping, embedding_columns, mapping):
+    format = {}
+    if data_mapping is not None:
+      for key in data_mapping.keys():
+        if key in mapping['properties']:
+          index = int(data_mapping.get(key)) + 1
+          format[key] = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row[index]), digit=False, ascii=False), kana=False)
+        else:
+          raise ValueError("property {} not exist on mapping.json.".format(key))
+    if embedding_columns is not None:
+      for key in embedding_columns.keys():
+        if key in mapping['properties']:
+          index = int(embedding_columns.get(key)) + 1
+          format[key] = self.to_vector(mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row[index]), digit=False, ascii=False), kana=False))
+        else:
+          raise ValueError("property {} not exist on mapping.json.".format(key))
+    return format
+
   def read(self, file):
     self.logger.info("processing read() {}".format(file))
-    usecols = None if config.USE_COLS == None else [int(s) for s in config.USE_COLS.split(",")]
-    df_sheet = pd.read_excel(file, sheet_name=0, usecols=usecols, 
-      header=None, names=[config.HEADER_TROUBLE, config.HEADER_CAUSE, config.HEADER_RESPONSE])
-    header = {
-      'trouble_header': config.HEADER_TROUBLE,
-      'cause_header': config.HEADER_CAUSE,
-      'response_header': config.HEADER_RESPONSE
-    }
-    results = []
-    for i, row in enumerate(df_sheet.itertuples()):
-      trouble = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.trouble), digit=False, ascii=False), kana=False)
-      cause = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.cause), digit=False, ascii=False), kana=False)
-      response = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row.response), digit=False, ascii=False), kana=False)
-      if (i == 0):
-        header['trouble_header'] = trouble
-        header['cause_header'] = cause
-        header['response_header'] = response
-      else:
-        results.append({
-          'trouble_header': header['trouble_header'],
-          'cause_header': header['cause_header'],
-          'response_header': header['response_header'],
-          'trouble': trouble,
-          'trouble_vector': self.to_vector(trouble),
-          'cause': cause,
-          'response': response
-          })
+    results =[]
+    try:
+      with open (config.MAPPING_JSON_PATH) as f:
+        mapping = json.load(f)
+        header_mapping = None if config.HEADER_MAPPING == None else json.loads(config.HEADER_MAPPING)
+        data_mapping = None if config.DATA_MAPPING == None else json.loads(config.DATA_MAPPING)
+        embedding_columns = None if config.EMBEDDING_COLUMNS == None else json.loads(config.EMBEDDING_COLUMNS)
+        df_sheet = pd.read_excel(file, sheet_name=0, header=None, index_col=None)
+        header = {}
+        for i, row in enumerate(df_sheet.itertuples()): #itertuples contains Index
+          if i == 0:
+            header = self.header_format(row, header_mapping=header_mapping, mapping=mapping)
+          else:
+            data = self.data_format(row, data_mapping=data_mapping, embedding_columns=embedding_columns, mapping=mapping)
+            results.append(merge(header, data))
+    except Exception as e:
+      self.logger.error(e)
     return results

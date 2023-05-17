@@ -3,6 +3,7 @@ pandas
 openpyxl
 nkf
 mojimoji
+jsonmerge
 ###### Requirements with Version Specifiers ######`
 sentence-transformers==2.2.2
 elasticsearch==8.2.1
