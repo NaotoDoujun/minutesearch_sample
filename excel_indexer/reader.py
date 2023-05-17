@@ -55,7 +55,7 @@ class Reader:
           index = int(header_mapping.get(key)) + 1
           format[key] = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row[index]), digit=False, ascii=False), kana=False)
         else:
-          raise ValueError("property {} not exist on mapping.json.".format(key))
+          raise KeyError("property {} not exist on mapping.json.".format(key))
     return format
 
   def data_format(self, row, data_mapping, embedding_columns, mapping):
@@ -66,14 +66,14 @@ class Reader:
           index = int(data_mapping.get(key)) + 1
           format[key] = mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row[index]), digit=False, ascii=False), kana=False)
         else:
-          raise ValueError("property {} not exist on mapping.json.".format(key))
+          raise KeyError("property {} not exist on mapping.json.".format(key))
     if embedding_columns is not None:
       for key in embedding_columns.keys():
         if key in mapping['properties']:
           index = int(embedding_columns.get(key)) + 1
           format[key] = self.to_vector(mojimoji.zen_to_han(mojimoji.han_to_zen(self.change_charset(row[index]), digit=False, ascii=False), kana=False))
         else:
-          raise ValueError("property {} not exist on mapping.json.".format(key))
+          raise KeyError("property {} not exist on mapping.json.".format(key))
     return format
 
   def read(self, file):
