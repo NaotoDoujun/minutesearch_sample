@@ -29,6 +29,7 @@ class PdfIndexer:
     """
     Make Elasticsearch Index
     """
+    self.logger.info("target index name is [{}]".format(index))
     if recreate and self.es.indices.exists(index=index):
       self.es.indices.delete(index=index)
       

@@ -29,6 +29,7 @@ class ExcelIndexer:
     """
     Make Elasticsearch Index
     """
+    self.logger.info("target index name is [{}]".format(index))
     if recreate and self.es.indices.exists(index=index):
       self.es.indices.delete(index=index)
       
@@ -37,6 +38,7 @@ class ExcelIndexer:
         setting = json.load(fs)
         with open(mapping_file_path) as fm:
             mapping = json.load(fm)
+            mapping['properties'][config.RESERVED_PROPERTY_FILENAME] = {"type": "text"}
             self.es.indices.create(index=index, mappings=mapping, settings=setting)
 
   def exists(self, index, id):
@@ -45,12 +47,36 @@ class ExcelIndexer:
     """
     return self.es.exists(index=index, id=id)
 
+  def get_source(self, index, id):    
+    """
+    Get Target id document
+    """
+    return self.es.get_source(index=index, id=id)
+  
+  def update(self, index, id, body):
+    """
+    Update Target id document
+    """
+    return self.es.update(index=index, id=id, body=body)
+
+  def delete(self, index, id, doc_type='_doc'):
+    """
+    Delete Target id document
+    """
+    return self.es.delete(index=index, id=id, doc_type=doc_type)
+
   def do_create(self, index, id, doc):
     """
     Create document
     """
     self.es.create(index=index, id=id, body=doc)
-    print('\r *** create document done at {} ***'.format(datetime.datetime.now()))
+    self.logger.info('*** create document done at {} ***'.format(datetime.datetime.now()))
+
+  def do_delete_by_query(self, index, query):
+    """
+    Delete documents by query
+    """
+    self.es.delete_by_query(index=index, body={'query': query})
 
   def do_bulk_import(self, import_data, count):
     """
@@ -58,13 +84,11 @@ class ExcelIndexer:
     """
     size = sys.getsizeof(import_data)
     count += 1
-    print('\r ****** bulk_import {} [{}] started at {} *****'.format(
+    self.logger.info('****** bulk_import {} [{}] started *****'.format(
         count, 
-        self.convert_size(size, "KB"),
-        datetime.datetime.now()))
+        self.convert_size(size, "KB")))
     helpers.bulk(self.es, import_data)
-    print('\r ****** bulk_import {} [{}]    done at {} *****'.format(
+    self.logger.info('****** bulk_import {} [{}]    done *****'.format(
         count, 
-        self.convert_size(size, "KB"), 
-        datetime.datetime.now()))      
+        self.convert_size(size, "KB")))    
     return count

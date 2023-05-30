@@ -11,7 +11,7 @@ def main():
   logger = getLogger()
   handler = StreamHandler()
   handler.setLevel(DEBUG)
-  handler.setFormatter(Formatter('[%(name)s] %(message)s'))
+  handler.setFormatter(Formatter('%(asctime)s %(levelname)s [%(name)s] %(message)s'))
   logger.addHandler(handler)
   logger.setLevel(WARNING)
   logger.debug('The root logger is created.')
@@ -22,7 +22,6 @@ def main():
     setting_file_path=config.SETTING_JSON_PATH, 
     mapping_file_path=config.MAPPING_JSON_PATH, 
     recreate=False)
-  logger.info("target index name is {}".format(config.ES_INDEX_NAME))
   
   files = glob.glob("{}/*.pdf".format(config.TARGET_DIRECTORY))
 

@@ -63,6 +63,7 @@ services:
       - inputindexer:/root/.cache
       - ./sample:/app/sample:ro
     environment:
+      - TZ=Asia/Tokyo
       - ES_INDEX_NAME=pdfdoc
       - TARGET_DIRECTORY=/app/sample/inputs
       - TOPPAGE_ONLY=true
@@ -78,6 +79,7 @@ services:
       - minuteindexer:/root/.cache
       - ./sample:/app/sample:ro
     environment:
+      - TZ=Asia/Tokyo
       - ES_INDEX_NAME=minutes
       - TARGET_DIRECTORY=/app/sample/minutes
       - TOPPAGE_ONLY=true
@@ -96,6 +98,7 @@ services:
       - troubleindexer:/root/.cache
       - ./infopost:/app/infopost:ro
     environment:
+      TZ: Asia/Tokyo
       ES_INDEX_NAME: troubles
       TARGET_DIRECTORY: /app/infopost/troubles
       MAPPING_JSON_PATH: /app/es_settings/troubles_mapping.json
@@ -116,6 +119,8 @@ services:
       - 8065:8000
     volumes:
       - appapi:/root/.cache
+    environment:
+      - TZ=Asia/Tokyo
     depends_on:
       - elasticsearch
     restart: always
@@ -154,6 +159,5 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=password
     volumes:
-      - ./configdb:/data/configdb
       - mongodata:/data/db
     restart: always
