@@ -27,7 +27,7 @@ class Ocr:
     tools = pyocr.get_available_tools()
     self.tool = tools[0]
     self.builder = pyocr.builders.TextBuilder(tesseract_layout=6)
-    self.nlp = spacy.load("ja_ginza_electra")
+    self.nlp = spacy.load(config.SPACY_MODEL)
 
   def to_base64(self, image, format="jpeg"):
     buffer = BytesIO()
@@ -66,7 +66,7 @@ class Ocr:
     For Text embedding Pdf
     """
     self.logger.info("processing ocr_pdfminer()")
-    filename = os.path.split(file)[1]
+    filename = os.path.basename(file)
     self.logger.info("processing file is {}".format(filename))
     images = self.pdf2images(file)
     results, page_cnt = [], 1
@@ -88,13 +88,16 @@ class Ocr:
         doc = self.nlp(text)
         tags = [self.str_multi2single(ent.text) for ent in doc.ents]
         tags = list(set(tags))
-        results.append({
+        result = {
           'page': page_cnt, 
           'text': text, 
           'tags': tags, 
           'image': img_base64, 
           'filename': filename, 
-          'path': file})
+          'path': file
+        }
+        result[config.RESERVED_PROPERTY_FILENAME] = filename
+        results.append(result)
         page_cnt += 1
         output.truncate(0)
         output.seek(0)
@@ -108,7 +111,7 @@ class Ocr:
     For Image Pdf
     """
     self.logger.info("processing ocr_tesseract()")
-    filename = os.path.split(file)[1]
+    filename = os.path.basename(file)
     self.logger.info("processing file is {}".format(filename))
     images = self.pdf2images(file)
     results, page_cnt = [], 1
@@ -125,13 +128,16 @@ class Ocr:
       doc = self.nlp(text)
       tags = [self.str_multi2single(ent.text) for ent in doc.ents]
       tags = list(set(tags))
-      results.append({
+      result = {
         'page': page_cnt, 
         'text': text, 
         'tags': tags, 
         'image': img_base64, 
-        'filename': filename, 
-        'path': file})
+        'filename': filename,
+        'path': file
+      }
+      result[config.RESERVED_PROPERTY_FILENAME] = filename
+      results.append(result)
       page_cnt += 1
     return results
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import json, sys, datetime
+import json, sys
 from elasticsearch import Elasticsearch, helpers
 from logging import getLogger, NullHandler, INFO
 import config
@@ -70,7 +70,7 @@ class ExcelIndexer:
     Create document
     """
     self.es.create(index=index, id=id, body=doc)
-    self.logger.info('*** create document done at {} ***'.format(datetime.datetime.now()))
+    self.logger.info('*** create document done ***')
 
   def do_delete_by_query(self, index, query):
     """
@@ -94,12 +94,15 @@ class ExcelIndexer:
     return count
   
   def group_by_filename(self, index):
+    """
+    Group by filename
+    """
     response = self.es.search(index=index, body={
       "size": 0,
       "aggs": {
         "group_by_filename": {
           "terms": {
-            "field": "_system_filename"
+            "field": config.RESERVED_PROPERTY_FILENAME
           }
         }
       }
