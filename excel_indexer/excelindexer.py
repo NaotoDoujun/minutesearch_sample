@@ -38,7 +38,7 @@ class ExcelIndexer:
         setting = json.load(fs)
         with open(mapping_file_path) as fm:
             mapping = json.load(fm)
-            mapping['properties'][config.RESERVED_PROPERTY_FILENAME] = {"type": "text"}
+            mapping['properties'][config.RESERVED_PROPERTY_FILENAME] = {"type": "keyword"}
             self.es.indices.create(index=index, mappings=mapping, settings=setting)
 
   def exists(self, index, id):
@@ -59,11 +59,11 @@ class ExcelIndexer:
     """
     return self.es.update(index=index, id=id, body=body)
 
-  def delete(self, index, id, doc_type='_doc'):
+  def delete(self, index, id):
     """
     Delete Target id document
     """
-    return self.es.delete(index=index, id=id, doc_type=doc_type)
+    return self.es.delete(index=index, id=id)
 
   def do_create(self, index, id, doc):
     """
@@ -76,7 +76,7 @@ class ExcelIndexer:
     """
     Delete documents by query
     """
-    self.es.delete_by_query(index=index, body={'query': query})
+    return self.es.delete_by_query(index=index, body={'query': query})
 
   def do_bulk_import(self, import_data, count):
     """

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import json
 import nkf
 import mojimoji
@@ -122,7 +123,7 @@ class Reader:
         else:
           data = self.data_format(row, data_mapping=data_mapping, mapping=mapping)
           if config.RESERVED_PROPERTY_FILENAME in mapping['properties']:
-            data[config.RESERVED_PROPERTY_FILENAME] = file
+            data[config.RESERVED_PROPERTY_FILENAME] = os.path.basename(file)
           results.append(merge(header, data))
     except:
       raise

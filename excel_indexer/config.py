@@ -14,6 +14,7 @@ ES_ENDPOINT='http://elasticsearch:9200'
 # Sentence-BERT based. for sentence_transformers
 SENTENCE_MODEL = 'stsb-xlm-r-multilingual'
 
-MAX_DOCS = 1000
+DATA_START_ROW = 2
+BULK_MAX_DOCS = 1000
 RESERVED_PROPERTY_FILENAME = '_system_filename'
 STORE_DIR = '/root/.cache'

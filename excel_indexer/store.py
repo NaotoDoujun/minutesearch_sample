@@ -1,8 +1,21 @@
 # -*- coding: utf-8 -*-
 import os
-import json
+from dataclasses import dataclass, field
+from typing import List
+from dataclasses_json import dataclass_json
 from logging import getLogger, NullHandler, INFO
 import config
+
+@dataclass_json
+@dataclass
+class File:
+  name: str
+  data_rows: int
+
+@dataclass_json
+@dataclass
+class Files:
+  files: List[File] = field(default_factory=list)
 
 class Store:
 
@@ -12,20 +25,19 @@ class Store:
     self.logger.setLevel(INFO)
     self.logger.propagate = True
 
-  def load(self):
+  def load(self) -> Files:
     path = os.path.join(config.STORE_DIR, "{}_files.json".format(config.ES_INDEX_NAME))
     if os.path.exists(path):
       with open(path) as f:
-        data = json.load(f)
-        self.logger.info("load data from file store: {}".format(data))
+        data = Files.from_json(f.read())
+        self.logger.info("load file info from store: {}".format(data))
         return data
     else:
-      return []
+      return Files()
   
-  def save(self, data):
+  def save(self, data: Files):
     path = os.path.join(config.STORE_DIR, "{}_files.json".format(config.ES_INDEX_NAME))
-    json_string = json.dumps(data)
     with open(path, 'w') as f:
-      f.write(json_string)
-      self.logger.info("save data to file store: {}".format(json_string))
+      f.write(data.to_json(indent=4, ensure_ascii=False))
+      self.logger.info("save file info to store: {}".format(data))
     return
