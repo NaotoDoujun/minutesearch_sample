@@ -29,7 +29,7 @@ class ExcelIndexer:
     """
     Make Elasticsearch Index
     """
-    self.logger.info("target index name is [{}]".format(index))
+    self.logger.info("target index name: {}".format(index))
     if recreate and self.es.indices.exists(index=index):
       self.es.indices.delete(index=index)
       
@@ -40,6 +40,12 @@ class ExcelIndexer:
             mapping = json.load(fm)
             mapping['properties'][config.RESERVED_PROPERTY_FILENAME] = {"type": "keyword"}
             self.es.indices.create(index=index, mappings=mapping, settings=setting)
+
+  def indices_exists(self, index):
+    """
+    Check Target index exists
+    """
+    return self.es.indices.exists(index=index)
 
   def exists(self, index, id):
     """

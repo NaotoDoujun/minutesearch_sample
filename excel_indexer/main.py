@@ -23,6 +23,10 @@ def main():
   store_files = Files()
 
   try:
+
+    if not indexer.indices_exists(config.ES_INDEX_NAME):
+      file_store.delete(config.ES_INDEX_NAME) 
+
     indexer.make_es_index(index=config.ES_INDEX_NAME, 
       setting_file_path=config.SETTING_JSON_PATH, 
       mapping_file_path=config.MAPPING_JSON_PATH, 
@@ -31,7 +35,7 @@ def main():
     files = glob.glob("{}/*.xlsx".format(config.TARGET_DIRECTORY))
 
     # delete removed file's docs
-    existed_files = file_store.load()
+    existed_files = file_store.load(config.ES_INDEX_NAME)
     for existed_file in existed_files.files:
       if existed_file.name not in files:
         basename = os.path.basename(existed_file.name)
@@ -89,7 +93,7 @@ def main():
           continue
     
     # only when all process succeeded
-    file_store.save(store_files)
+    file_store.save(config.ES_INDEX_NAME, store_files)
 
   except Exception as e:
     logger.error(e)

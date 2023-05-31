@@ -25,8 +25,8 @@ class Store:
     self.logger.setLevel(INFO)
     self.logger.propagate = True
 
-  def load(self) -> Files:
-    path = os.path.join(config.STORE_DIR, "{}_files.json".format(config.ES_INDEX_NAME))
+  def load(self, index) -> Files:
+    path = os.path.join(config.STORE_DIR, "{}_files.json".format(index))
     if os.path.exists(path):
       with open(path) as f:
         data = Files.from_json(f.read())
@@ -35,9 +35,15 @@ class Store:
     else:
       return Files()
   
-  def save(self, data: Files):
-    path = os.path.join(config.STORE_DIR, "{}_files.json".format(config.ES_INDEX_NAME))
+  def save(self, index, data: Files):
+    path = os.path.join(config.STORE_DIR, "{}_files.json".format(index))
     with open(path, 'w') as f:
       f.write(data.to_json(indent=4, ensure_ascii=False))
       self.logger.info("save file info to store: {}".format(data))
     return
+  
+  def delete(self, index):
+    path = os.path.join(config.STORE_DIR, "{}_files.json".format(index))
+    if os.path.exists(path):
+      os.remove(path)
+      self.logger.info("deleted store file. index: {}".format(index))
