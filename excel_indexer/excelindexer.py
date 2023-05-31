@@ -41,12 +41,6 @@ class ExcelIndexer:
             mapping['properties'][config.RESERVED_PROPERTY_FILENAME] = {"type": "keyword"}
             self.es.indices.create(index=index, mappings=mapping, settings=setting)
 
-  def indices_exists(self, index):
-    """
-    Check Target index exists
-    """
-    return self.es.indices.exists(index=index)
-
   def exists(self, index, id):
     """
     Check Target id document exists
@@ -98,3 +92,18 @@ class ExcelIndexer:
         count, 
         self.convert_size(size, "KB")))    
     return count
+  
+  def group_by_filename(self, index):
+    response = self.es.search(index=index, body={
+      "size": 0,
+      "aggs": {
+        "group_by_filename": {
+          "terms": {
+            "field": "_system_filename"
+          }
+        }
+      }
+    })
+    buckets = response.get('aggregations', {}).get('group_by_filename', {}).get('buckets', {})
+    return [] if buckets == None else buckets
+    

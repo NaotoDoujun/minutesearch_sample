@@ -61,7 +61,6 @@ class Reader:
         if format1[key] != format2[key]:
           result = False
           break
-    # @TODO exist files check
     return result
   
   def to_vector(self, sentence):

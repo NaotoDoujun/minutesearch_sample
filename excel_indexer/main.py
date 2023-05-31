@@ -4,7 +4,6 @@ import json
 import hashlib, glob
 import config
 import excelindexer
-from store import Store, Files, File
 from logging import Formatter, getLogger, StreamHandler, DEBUG, WARN
 import warnings
 warnings.filterwarnings('ignore')
@@ -19,13 +18,8 @@ def main():
   logger.debug('The root logger is created.')
 
   indexer = excelindexer.ExcelIndexer()
-  file_store = Store()
-  store_files = Files()
 
   try:
-
-    if not indexer.indices_exists(config.ES_INDEX_NAME):
-      file_store.delete(config.ES_INDEX_NAME) 
 
     indexer.make_es_index(index=config.ES_INDEX_NAME, 
       setting_file_path=config.SETTING_JSON_PATH, 
@@ -35,13 +29,13 @@ def main():
     files = glob.glob("{}/*.xlsx".format(config.TARGET_DIRECTORY))
 
     # delete removed file's docs
-    existed_files = file_store.load(config.ES_INDEX_NAME)
-    for existed_file in existed_files.files:
-      if existed_file.name not in files:
-        basename = os.path.basename(existed_file.name)
-        response = indexer.do_delete_by_query(config.ES_INDEX_NAME, query={"term": {config.RESERVED_PROPERTY_FILENAME: basename}})
-        logger.warning("file:{} removed. related {} documents have also been removed.".format(basename, response['deleted']))
-
+    buckets = indexer.group_by_filename(config.ES_INDEX_NAME)
+    for bucket in buckets:
+      filename = bucket.get('key')
+      if os.path.join(config.TARGET_DIRECTORY, filename) not in files:
+        response = indexer.do_delete_by_query(config.ES_INDEX_NAME, query={"term": {config.RESERVED_PROPERTY_FILENAME: filename}})
+        logger.warning("file:{} removed. related {} documents have also been removed.".format(filename, response['deleted']))
+        
     # import existing file's docs
     with open (config.MAPPING_JSON_PATH) as f:
       mapping = json.load(f)
@@ -51,13 +45,12 @@ def main():
       for i, file in enumerate(files):
         try:
           results = indexer.reader.read(file, mapping)
-          store_files.files.append(File(file, len(results)))
 
           # delete removed rows
-          existed_file = [ ex for ex in existed_files.files if ex.name == file ]
+          existed_file = [ bk for bk in buckets if os.path.join(config.TARGET_DIRECTORY, bk.get('key', '')) == file ]
           if len(existed_file) > 0:
-            if existed_file[0].data_rows > len(results):
-              for x in reversed(range(len(results), existed_file[0].data_rows)):
+            if existed_file[0].get('doc_count', 0) > len(results):
+              for x in reversed(range(len(results), existed_file[0]['doc_count'])):
                 id = hashlib.md5("{}_sheet0_row{}".format(file, x + config.DATA_START_ROW).encode()).hexdigest()
                 indexer.delete(config.ES_INDEX_NAME, id)
                 logger.warning("excel_row:{} removed.".format(x + config.DATA_START_ROW))
@@ -91,9 +84,6 @@ def main():
         except Exception as e:
           logger.error(e)
           continue
-    
-    # only when all process succeeded
-    file_store.save(config.ES_INDEX_NAME, store_files)
 
   except Exception as e:
     logger.error(e)
