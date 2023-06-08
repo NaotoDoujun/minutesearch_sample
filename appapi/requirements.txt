@@ -5,6 +5,7 @@ mojimoji
 fastapi==0.78.0 
 uvicorn==0.17.6 
 elasticsearch==8.2.1
+typing_extensions<4.6.0
 spacy==3.4.1
 spacy_download==1.1.0
 ja-ginza-electra==5.1.2
