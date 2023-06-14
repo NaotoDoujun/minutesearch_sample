@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import json, sys
+import sys
 from elasticsearch import Elasticsearch, helpers
 from logging import getLogger, NullHandler, INFO
 import config
@@ -25,7 +25,7 @@ class ExcelIndexer:
     size = round(size / 1024 ** i, 2)
     return f"{size} {units[i]}"
 
-  def make_es_index(self, index, setting_file_path, mapping_file_path, recreate=False):
+  def make_es_index(self, index, recreate=False):
     """
     Make Elasticsearch Index
     """
@@ -34,12 +34,9 @@ class ExcelIndexer:
       self.es.indices.delete(index=index)
       
     if not self.es.indices.exists(index=index):
-      with open (setting_file_path) as fs:
-        setting = json.load(fs)
-        with open(mapping_file_path) as fm:
-            mapping = json.load(fm)
-            mapping['properties'][config.RESERVED_PROPERTY_FILENAME] = {"type": "keyword"}
-            self.es.indices.create(index=index, mappings=mapping, settings=setting)
+      setting = self.reader.get_setting_json()
+      mapping = self.reader.get_mapping_json()
+      self.es.indices.create(index=index, mappings=mapping, settings=setting)
 
   def exists(self, index, id):
     """

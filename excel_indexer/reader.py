@@ -46,16 +46,25 @@ class Reader:
           return nkf.nkf('-We', text)
       else:
         return text
-      
+
+  def get_setting_json(self):
+    setting = None
+    with open (config.SETTING_JSON_PATH) as f:
+      setting = json.load(f)
+    return setting
+
+  def get_mapping_json(self):
+    mapping = None
+    with open (config.MAPPING_JSON_PATH) as f:
+      mapping = json.load(f)
+      mapping['properties'][config.RESERVED_PROPERTY_FILENAME] = { "type": "keyword" }
+      mapping['properties'][config.RESERVED_PROPERTY_RATED_USERS] = { "type": "nested" }
+      mapping['properties'][config.RESERVED_PROPERTY_RATING] = { "type": "integer" }
+    return mapping
+
   def is_same(self, format1, format2):
     result = True
-    header_mapping = None if config.HEADER_MAPPING == None else json.loads(config.HEADER_MAPPING)
     data_mapping = None if config.DATA_MAPPING == None else json.loads(config.DATA_MAPPING)
-    if header_mapping is not None:
-      for key in data_mapping.keys():
-        if format1[key] != format2[key]:
-          result = False
-          break
     if data_mapping is not None:
       for key in data_mapping.keys():
         if format1[key] != format2[key]:

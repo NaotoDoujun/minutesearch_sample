@@ -17,3 +17,5 @@ SENTENCE_MODEL = 'stsb-xlm-r-multilingual'
 DATA_START_ROW = 2
 BULK_MAX_DOCS = 1000
 RESERVED_PROPERTY_FILENAME = '_system_filename'
+RESERVED_PROPERTY_RATED_USERS = '_system_rated_users'
+RESERVED_PROPERTY_RATING = '_system_rating'
