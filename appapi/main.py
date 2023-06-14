@@ -4,11 +4,17 @@ import logging
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from recommender import MinuteRecommender, TroubleShootRecommender, IndexNotFoundException
+from recommender import (MinuteRecommender, TroubleShootRecommender, RateType,
+                          IndexNotFoundException, DocumentNotFoundException, UserRateRecordFailedException)
 from summarizer import SUMYSummarizer, AlgorithmName
 
 class Item(BaseModel):
     text: str
+
+class RatingItem(BaseModel):
+    document_id: str
+    user_id: str
+    rate_type: RateType
 
 app = FastAPI()
 app.add_middleware(
@@ -52,6 +58,19 @@ def troubles_search(item: Item, size: int = None, min_score: float = None):
         return troubleshoot_recommender.troubles_search(item.text, size, min_score)
     except IndexNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.post("/trouble_user_rate/")
+def trouble_user_rate(item: RatingItem):
+    try:
+        return troubleshoot_recommender.user_rate(item.document_id, item.user_id, item.rate_type)
+    except DocumentNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except IndexNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except UserRateRecordFailedException as e:
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
