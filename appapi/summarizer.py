@@ -3,7 +3,6 @@ import nltk
 import langid
 import spacy
 from enum import Enum
-from spacy_download import load_spacy
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.lex_rank import LexRankSummarizer
@@ -26,11 +25,11 @@ class SUMYSummarizer():
     def __init__(self, logger):
         nltk.download('punkt')
         self.logger = logger
-        self.nlp = load_spacy(config.SPACY_EN_MODEL)
+        self.nlp = spacy.load(config.SPACY_EN_MODEL)
         self.ja_nlp = spacy.load(config.GINZA_MODEL)
 
     def lang_detection(self, text):
-        lang, conf = langid.classify(text)
+        lang, _ = langid.classify(text)
         if lang == 'ja':
             return self.LANG_JAPANESE
         else:
