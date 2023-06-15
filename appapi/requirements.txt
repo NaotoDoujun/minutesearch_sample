@@ -1,4 +1,6 @@
 ###### Requirements without Version Specifiers ######`
+pandas
+openpyxl
 datasets
 mojimoji
 ###### Requirements with Version Specifiers ######`

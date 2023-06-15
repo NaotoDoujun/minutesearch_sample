@@ -2,6 +2,7 @@
 import uvicorn
 import logging
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from recommender import (MinuteRecommender, TroubleShootRecommender, RateType,
@@ -89,6 +90,17 @@ def trouble_record_comment(item: CommentItem):
         raise HTTPException(status_code=404, detail=str(e))
     except UserRateRecordFailedException as e:
         raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get('/trouble_user_rating_download/')
+async def trouble_user_rating_download():
+    try:
+        return StreamingResponse(troubleshoot_recommender.user_rating_to_excel(), 
+            media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={"Content-Disposition": 'attachment; filename="UserRating.xlsx"'})
+    except IndexNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

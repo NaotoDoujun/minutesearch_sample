@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-from elasticsearch import Elasticsearch
+import io
+from elasticsearch import Elasticsearch, helpers
 import mojimoji
 import spacy
 from enum import Enum
+import pandas as pd
 from sentence_transformers import SentenceTransformer
 import config
 
@@ -351,3 +353,69 @@ class TroubleShootRecommender():
             id=document_id,
             body=body
         )
+    
+    def user_rating_to_excel(self):
+        try:
+            if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
+                data = {
+                    "id": [],
+                    "user": [],
+                    "user_name": [],
+                    "positive": [],
+                    "negative": [],
+                    "comment": [],
+                    "rating": [],
+                    "trouble": [],
+                    "cause": [],
+                    "response": []
+                }
+                results = helpers.scan(
+                    client=self.es,
+                    index=config.TROUBLE_ES_INDEX_NAME,
+                    query={"query": {
+                        "nested": {
+                            "path": "_system_rated_users",
+                            "query": {
+                                "bool": {
+                                    "should": [
+                                        { "term": { "_system_rated_users.negative": True } },
+                                        { "term": { "_system_rated_users.positive": True } }
+                                    ],
+                                    "minimum_should_match" : 1
+                                }
+                            }
+                        }
+                    }},
+                    size=500,
+                    scroll='1m',
+                    _source_includes=['trouble', 'cause', 'response', '_system_rated_users', '_system_rating']
+                )
+
+                for item in results:
+                    rated_users = item['_source']['_system_rated_users'] if '_system_rated_users' in item['_source'] else []
+                    rating = item['_source']['_system_rating'] if '_system_rating' in item['_source'] else 0
+                    for rated_user in rated_users:
+                        comment = rated_user['negative_comment'] if rated_user['negative'] else rated_user['positive']
+                        data['id'].append(item['_id'])
+                        data['user'].append(rated_user['user'])
+                        data['user_name'].append(rated_user['user_name'])
+                        data['positive'].append(rated_user['positive'])
+                        data['negative'].append(rated_user['negative'])
+                        data['comment'].append(comment)
+                        data['rating'].append(rating)
+                        data['trouble'].append(item['_source']['trouble'])
+                        data['cause'].append(item['_source']['cause'])
+                        data['response'].append(item['_source']['response'])
+                
+                df = pd.DataFrame(data)
+                df['positive'] = df['positive'].astype(int)
+                df['negative'] = df['negative'].astype(int)
+                
+                buffer = io.BytesIO()
+                with pd.ExcelWriter(buffer) as writer:
+                    df.to_excel(writer, index=False)
+                return io.BytesIO(buffer.getvalue())
+            else:
+                raise IndexNotFoundException("es index: {} not found.".format(config.TROUBLE_ES_INDEX_NAME)) 
+        except:
+            raise
