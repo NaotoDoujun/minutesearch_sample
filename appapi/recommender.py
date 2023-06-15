@@ -235,6 +235,28 @@ class TroubleShootRecommender():
         except:
             raise
 
+    def record_comment(self, document_id, user_id, comment, rate_type: RateType):
+        try:
+            if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
+                # get rating info by document_id and user_id
+                hits = self.get_rating_info(document_id=document_id, user_id=user_id)
+                if len(hits) > 0:
+                    rated_users = hits[0]['rated_users']
+                    for ru in rated_users:
+                        if ru['user'] == user_id:
+                            if rate_type == RateType.good:
+                                ru['positive_comment'] = comment
+                            elif rate_type == RateType.bad:
+                                ru['negative_comment'] = comment
+                            break
+                    return self.update_rated_users(document_id=document_id, rated_users=rated_users)
+                else:
+                    raise UserRateRecordFailedException("user rating update failed cuz not found. target document_id: {}".format(document_id)) 
+            else:
+                raise IndexNotFoundException("es index: {} not found.".format(config.TROUBLE_ES_INDEX_NAME))   
+        except:
+            raise
+
     def judge_rate(self, my_rating_info, rate_type: RateType, rating):
         positive = False
         negative = False
@@ -313,6 +335,16 @@ class TroubleShootRecommender():
         body = {'doc': {
             '_system_rated_users': rated_users,
             '_system_rating': rating
+        }}
+        return self.es.update(
+            index=config.TROUBLE_ES_INDEX_NAME,
+            id=document_id,
+            body=body
+        )
+    
+    def update_rated_users(self, document_id, rated_users):
+        body = {'doc': {
+            '_system_rated_users': rated_users
         }}
         return self.es.update(
             index=config.TROUBLE_ES_INDEX_NAME,

@@ -17,6 +17,12 @@ class RatingItem(BaseModel):
     user_name: str
     rate_type: RateType
 
+class CommentItem(BaseModel):
+    document_id: str
+    user_id: str 
+    comment: str
+    rate_type: RateType
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -68,6 +74,17 @@ def trouble_user_rate(item: RatingItem):
         return troubleshoot_recommender.user_rate(item.document_id, item.user_id, item.user_name, item.rate_type)
     except DocumentNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except IndexNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except UserRateRecordFailedException as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/trouble_record_comment/")
+def trouble_record_comment(item: CommentItem):
+    try:
+        return troubleshoot_recommender.record_comment(item.document_id, item.user_id, item.comment, item.rate_type)
     except IndexNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except UserRateRecordFailedException as e:
