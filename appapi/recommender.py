@@ -125,6 +125,18 @@ class TroubleShootRecommender():
             if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
                 query = mojimoji.zen_to_han(mojimoji.han_to_zen(text, digit=False, ascii=False), kana=False)
                 embedding = self.model.encode(query)
+                score_formula = '''
+                    if(doc['_system_rating'].size() == 0){
+                        ((sigmoid(_score, 2, 1) + 1.0) * params.full_text_ratio) + 
+                        ((cosineSimilarity(params.query_vector, 'trouble_vector') + 1.0) * params.embeddings_ratio) + 
+                        (1.0 * params.user_rating_ratio)
+                    } else {
+                        ((sigmoid(_score, 2, 1) + 1.0) * params.full_text_ratio) + 
+                        ((cosineSimilarity(params.query_vector, 'trouble_vector') + 1.0) * params.embeddings_ratio) +
+                        ((sigmoid(doc['_system_rating'].value, 2, 1) + 1.0) * params.user_rating_ratio)
+                    }
+                '''.strip()
+                self.logger.info(score_formula)
                 script_query = {
                     "script_score": {
                             "query": {
@@ -133,8 +145,13 @@ class TroubleShootRecommender():
                             }
                         },
                         "script": {
-                            "source": "(sigmoid(_score, 2, 1) + 1) + (cosineSimilarity(params.query_vector, 'trouble_vector') + 1.0)",
-                            "params": {"query_vector": embedding}
+                            "source": score_formula,
+                            "params": { 
+                                "query_vector": embedding,
+                                "full_text_ratio": 0.5,
+                                "embeddings_ratio": 0.3,
+                                "user_rating_ratio": 0.2
+                            }
                         }
                     }
                 }
