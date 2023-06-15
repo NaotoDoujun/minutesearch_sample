@@ -136,7 +136,6 @@ class TroubleShootRecommender():
                         ((sigmoid(doc['_system_rating'].value, 2, 1) + 1.0) * params.user_rating_ratio)
                     }
                 '''.strip()
-                self.logger.info(score_formula)
                 script_query = {
                     "script_score": {
                             "query": {
@@ -161,7 +160,6 @@ class TroubleShootRecommender():
                     min_score=min_score,
                     query=script_query
                 )
-                self.logger.info("response: {}".format(response))
                 total = response['hits']['total']
                 hits = [
                     {
