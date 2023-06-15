@@ -133,7 +133,7 @@ class TroubleShootRecommender():
                       }
                   },
                   "script": {
-                      "source": "(_score + (cosineSimilarity(params.query_vector, 'trouble_vector') + 1.0))/2",
+                      "source": "(sigmoid(_score, 2, 1) + 1) + (cosineSimilarity(params.query_vector, 'trouble_vector') + 1.0)",
                       "params": {"query_vector": embedding}
                   }
               }
@@ -144,6 +144,7 @@ class TroubleShootRecommender():
               min_score=min_score,
               query=script_query
           )
+          self.logger.info("response: {}".format(response))
           total = response['hits']['total']
           hits = [
               {
@@ -153,6 +154,8 @@ class TroubleShootRecommender():
                   'trouble': row['_source']['trouble'], 
                   'cause': row['_source']['cause'], 
                   'response': row['_source']['response'],
+                  'rated_users': row['_source']['_system_rated_users'] if '_system_rated_users' in row['_source'] else [],
+                  'rating': row['_source']['_system_rating'] if '_system_rating' in row['_source'] else 0,
                   'score': row['_score'],
               }
               for row in response['hits']['hits']
@@ -262,8 +265,8 @@ class TroubleShootRecommender():
     )
     hits = [
       {
-        'rated_users': row['_source']['_system_rated_users'],
-        'rating': row['_source']['_system_rating'],
+        'rated_users': row['_source']['_system_rated_users'] if '_system_rated_users' in row['_source'] else [],
+        'rating': row['_source']['_system_rating'] if '_system_rating' in row['_source'] else 0,
       }
       for row in response['hits']['hits']
     ]
@@ -282,8 +285,8 @@ class TroubleShootRecommender():
     )
     hits = [
       {
-        'rated_users': row['_source']['_system_rated_users'],
-        'rating': row['_source']['_system_rating'],
+        'rated_users': row['_source']['_system_rated_users'] if '_system_rated_users' in row['_source'] else [],
+        'rating': row['_source']['_system_rating'] if '_system_rating' in row['_source'] else 0,
       }
       for row in response['hits']['hits']
     ]
