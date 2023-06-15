@@ -14,6 +14,7 @@ class Item(BaseModel):
 class RatingItem(BaseModel):
     document_id: str
     user_id: str
+    user_name: str
     rate_type: RateType
 
 app = FastAPI()
@@ -64,7 +65,7 @@ def troubles_search(item: Item, size: int = None, min_score: float = None):
 @app.post("/trouble_user_rate/")
 def trouble_user_rate(item: RatingItem):
     try:
-        return troubleshoot_recommender.user_rate(item.document_id, item.user_id, item.rate_type)
+        return troubleshoot_recommender.user_rate(item.document_id, item.user_id, item.user_name, item.rate_type)
     except DocumentNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except IndexNotFoundException as e:
