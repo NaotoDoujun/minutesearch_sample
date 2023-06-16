@@ -283,7 +283,14 @@ class TroubleShootRecommender():
                 need_comment = True
             elif my_rating_info['positive'] == False and my_rating_info['negative']== True:
                 rating = rating + 1
-        return { "positive": positive, "negative": negative, "rating": rating, "need_comment": need_comment }
+        return { 
+            "positive": positive, 
+            "negative": negative, 
+            "rating": rating, 
+            "positive_comment": my_rating_info['positive_comment'], 
+            "negative_comment": my_rating_info['negative_comment'],
+            "need_comment": need_comment 
+            }
 
     def get_rating_info(self, document_id, user_id):
         response = self.es.search(
