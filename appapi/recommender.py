@@ -395,7 +395,7 @@ class TroubleShootRecommender():
                     rated_users = item['_source']['_system_rated_users'] if '_system_rated_users' in item['_source'] else []
                     rating = item['_source']['_system_rating'] if '_system_rating' in item['_source'] else 0
                     for rated_user in rated_users:
-                        comment = rated_user['negative_comment'] if rated_user['negative'] else rated_user['positive']
+                        comment = rated_user['negative_comment'] if rated_user['negative'] else rated_user['positive_comment']
                         data['id'].append(item['_id'])
                         data['user'].append(rated_user['user'])
                         data['user_name'].append(rated_user['user_name'])
