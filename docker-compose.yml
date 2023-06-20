@@ -151,13 +151,17 @@ services:
       - 3000:3000
     depends_on:
       - appapi
-  mongo:
-    container_name: mongo
+  mongodb:
+    container_name: mongodb
     image: mongo:5.0.16-focal
     environment:
       - TZ=Asia/Tokyo
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=mongo
+      - MONGO_INITDB_DATABASE=app
     volumes:
+      - ./mongo_init.js:/docker-entrypoint-initdb.d/mongo_init.js
       - mongodata:/data/db
+    ports:
+      - 27017:27017
     restart: always

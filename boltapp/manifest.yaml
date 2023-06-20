@@ -11,11 +11,15 @@ features:
 oauth_config:
   scopes:
     bot:
+      - channels:read
+      - channels:manage
       - channels:history
       - channels:join
       - commands
       - chat:write
+      - chat:write.customize
       - im:history
+      - users.read
 settings:
   event_subscriptions:
     bot_events:

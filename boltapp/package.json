@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "set NODE_ENV=development&&node app.js",
     "lint": "eslint --ext .js ."
   },
   "author": "",
@@ -12,7 +12,8 @@
   "dependencies": {
     "@slack/bolt": "^3.12.1",
     "axios": "^1.0.0",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "mongoose": "^7.1.0"
   },
   "devDependencies": {
     "eslint": "~8.24.0",
