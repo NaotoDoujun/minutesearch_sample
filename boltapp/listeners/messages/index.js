@@ -1,7 +1,7 @@
 const { sampleMessageCallback } = require('./sample-message');
 
 const noBotMessage = async ({ message, next }) => {
-  if (!message.subtype || message.subtype !== 'bot_message') {
+  if (!message.subtype || (message.subtype !== 'bot_message' && message.subtype !== 'message_changed')) {
     await next();
   }
 };
