@@ -1,4 +1,4 @@
-FROM python:3.10-bullseye
+FROM python:3.8-bullseye
 WORKDIR /app
 
 RUN apt-get update -q && \
