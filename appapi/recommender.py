@@ -122,7 +122,7 @@ class TroubleShootRecommender():
         self.model = SentenceTransformer(config.SENTENCE_MODEL)
         self.es = Elasticsearch(config.ES_ENDPOINT, request_timeout=100)
 
-    def troubles_search(self, text, size = 10, min_score = 1.6):
+    def troubles_search(self, text, size = 10, min_score = 1.6, from_ = 0):
         try:
             if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
                 query = mojimoji.zen_to_han(mojimoji.han_to_zen(text, digit=False, ascii=False), kana=False)
@@ -149,8 +149,8 @@ class TroubleShootRecommender():
                             "source": score_formula,
                             "params": { 
                                 "query_vector": embedding,
-                                "full_text_ratio": 0.5,
-                                "embeddings_ratio": 0.3,
+                                "full_text_ratio": 1.0,
+                                "embeddings_ratio": 1.0,
                                 "user_rating_ratio": 0.2
                             }
                         }
@@ -159,6 +159,7 @@ class TroubleShootRecommender():
                 response = self.es.search(
                     index=config.TROUBLE_ES_INDEX_NAME,
                     size=size,
+                    from_=from_,
                     min_score=min_score,
                     query=script_query
                 )

@@ -147,6 +147,12 @@ services:
       dockerfile: ./Dockerfile
     image: boltapp
     container_name: boltapp
+    environment:
+      - TZ=Asia/Tokyo
+      - DEFAULT_SIZE=3
+      - DEFAULT_MAX_SIZE=5
+      - DEFAULT_MIN_SCORE=2.5
+      - DEFAULT_MAX_SCORE=6
     ports:
       - 3000:3000
     depends_on:

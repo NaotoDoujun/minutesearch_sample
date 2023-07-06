@@ -1,7 +1,7 @@
 const { config } = require('../../config');
 const { appApi, slackApi } = require('../../webApi');
 const { Database } = require('../../database');
-const { sampleBlocks } = require('./sample-blocks');
+const { troubleShootBlocks } = require('./troubleshoot_view');
 
 const joinChannel = async (client, channel_name, logger) => {
   let join = { ok: false, is_archived: false };
@@ -60,12 +60,12 @@ const recursivePostMessage = async (client, message, logger) => {
   return result;
 };
 
-const sampleMessageCallback = async ({ message, client, say, logger }) => {
+const troubleShootMessageCallback = async ({ message, client, say, logger }) => {
   try {
-    const userInfo = await slackApi.getUserInfo(client, message.user);
-    const settings = await Database.getUserSettings(message.user);
-    const recommends = await appApi.troubleSearch(settings.size, settings.min_score, message);
-    const blocks = await sampleBlocks(userInfo, recommends.data.hits);
+    const userinfo = await slackApi.getUserInfo(client, message.user);
+    const settings = await Database.getUserSettings(message.user, logger);
+    const recommends = await appApi.troubleSearch(settings.size, settings.min_score, 0, message);
+    const blocks = await troubleShootBlocks(userinfo, settings, message, recommends);
     if (recommends.data.total.value > 0) {
       if (message.channel_type !== 'channel') {
         await say({
@@ -77,8 +77,8 @@ const sampleMessageCallback = async ({ message, client, say, logger }) => {
         // target channel have to be name cuz this script going to create the channel when its nothing.
         const user_message = {
           channel: config.SLACK_CHANNEL_NAME_JP,
-          username: userInfo.user.profile.display_name ? userInfo.user.profile.display_name : userInfo.user.name,
-          icon_url: userInfo.user.profile.image_48,
+          username: userinfo.user.profile.display_name ? userinfo.user.profile.display_name : userinfo.user.name,
+          icon_url: userinfo.user.profile.image_48,
           text: `<#${message.channel}>: ${message.text}`,
         };
 
@@ -104,4 +104,4 @@ const sampleMessageCallback = async ({ message, client, say, logger }) => {
   }
 };
 
-module.exports = { sampleMessageCallback };
+module.exports = { troubleShootMessageCallback };

@@ -9,6 +9,8 @@ const app = new App({
   signingSecret: config.SLACK_SIGNING_SECRET,
   socketMode: config.SLACK_SOCKET_MODE,
   appToken: config.SLACK_APP_TOKEN,
+  deferInitialization: true,
+  port: config.BOT_PORT,
   logLevel: LogLevel.DEBUG,
 });
 
@@ -18,10 +20,11 @@ registerListeners(app);
 /** Start Bolt App */
 (async () => {
   try {
-    await app.start(config.BOT_PORT);
-    console.log('⚡️ Bolt app is running! ⚡️');
-    await Database.connect();
+    await app.init();
+    await Database.connect(app.logger);
+    await app.start();
+    app.logger.info('⚡️ Bolt app is running! ⚡️');
   } catch (error) {
-    console.error('Unable to start App', error);
+    app.logger.error('Unable to start App', error);
   }
 })();
