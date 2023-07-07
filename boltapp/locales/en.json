@@ -16,6 +16,7 @@
     "blocks_overflow": ":warning: Block items overflow...",
     "more": "More",
     "user_posted_text_title": "User Posted Text",
+    "paging_from_to": "From {{from}} to {{to}}", 
     "notify_pressed_good": "Pressed Good Button",
     "notify_pressed_bad": "Pressed Bad Button"
 }

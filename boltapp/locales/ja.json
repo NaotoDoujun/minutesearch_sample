@@ -16,6 +16,7 @@
     "blocks_overflow": ":warning: Block数が超過しています...",
     "more": "もっと表示",
     "user_posted_text_title": "ユーザ投稿文",
+    "paging_from_to": "{{from}} から {{to}} を表示",
     "notify_pressed_good": "Goodボタンが押されました",
     "notify_pressed_bad": "Badボタンが押されました"
 }

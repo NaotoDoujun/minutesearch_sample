@@ -19,6 +19,16 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
           text: `${message.text}`
         }
       },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: i18n.__('paging_from_to', { 
+            from: from + 1, 
+            to: total < from + settings.size ? total : from + settings.size 
+          }),
+        }
+      },
       { type: 'divider' }
     ];
     for (const i in recommends.data.hits) {
