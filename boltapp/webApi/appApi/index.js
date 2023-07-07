@@ -8,4 +8,14 @@ const troubleSearch = async (size, min_score, from, message) => {
   return result;
 };
 
-module.exports = { troubleSearch };
+const troubleUserRate = async (ratingItem) => {
+  const result = await axios.post(`${apihost}/trouble_user_rate/`, ratingItem);
+  return result;
+};
+
+const troubleRecordComment = async (commentItem) => {
+  const result = await axios.post(`${apihost}/trouble_record_comment/`, commentItem);
+  return result;
+}
+
+module.exports = { troubleSearch, troubleUserRate, troubleRecordComment };

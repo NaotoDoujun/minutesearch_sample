@@ -268,11 +268,13 @@ class TroubleShootRecommender():
             if my_rating_info['positive'] == False and my_rating_info['negative'] == False:
                 positive = True
                 rating = rating + 1
+                need_comment = True
             elif my_rating_info['positive'] == True and my_rating_info['negative'] == False:
                 rating = rating - 1
             elif my_rating_info['positive'] == False and my_rating_info['negative'] == True:
                 positive = True  
                 rating = rating + 2
+                need_comment = True
         if rate_type == RateType.bad:
             if my_rating_info['positive'] == False and my_rating_info['negative'] == False:
                 negative = True
