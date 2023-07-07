@@ -4,7 +4,7 @@ const openSettingsModalActionCallback = async ({ ack, body, client, context, log
   try {
     await ack();
     const userinfo = await slackApi.getUserInfo(client, body.user.id);
-    await client.views.open({
+    await slackApi.viewsOpen(client, {
       token: context.botToken,
       trigger_id: body.trigger_id,
       view: await settingsModalViews(userinfo, logger),

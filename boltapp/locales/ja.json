@@ -1,0 +1,21 @@
+{
+    "greeting": "*ようこそ, <@{{user}}> :house:*",
+    "settings_description": "最大表示件数と最少スコア閾値を設定します。",
+    "settings_open_button": "設定を開く",
+    "settings_title": "設定",
+    "size_label": "最大表示件数",
+    "min_score_label": "最少スコア閾値",
+    "submit": "保存",
+    "user_rating_comment_title": "ユーザ評価コメント",
+    "good_comment_label": "Good理由コメント",
+    "bad_comment_label": "Bad理由コメント",
+    "comment_placeholder": "理由を入力してください",
+    "recommends_hit_count": "Hitレコメンド件数: {{total}}",
+    "channel_archived": "対象チャンネル: {{channel}} はアーカイブされています。",
+    "user_rating_score": "ユーザ評価スコア: {{rating}}",
+    "blocks_overflow": ":warning: Block数が超過しています...",
+    "more": "もっと表示",
+    "user_posted_text_title": "ユーザ投稿文",
+    "notify_pressed_good": "Goodボタンが押されました",
+    "notify_pressed_bad": "Badボタンが押されました"
+}

@@ -1,8 +1,10 @@
+const { i18n } = require('../../locales');
 const apphomeBlocks = async(userinfo, event) => {
-    const greeting_txt = `*Welcome home, <@${event.user}> :house:*`;
-    const settings_txt = 'Settings';
-    const settings_description_txt = 'Set maximum number of display size and minimum score threshold.';
-    const settings_open_button_txt = 'Open Setting Modal';
+    userinfo.user.locale === 'ja-JP' ? i18n.setLocale('ja') : i18n.setLocale('en');
+    const greeting_txt = i18n.__('greeting', { user: event.user });
+    const settings_txt = i18n.__('settings_title');
+    const settings_description_txt = i18n.__('settings_description');
+    const settings_open_button_txt = i18n.__('settings_open_button');
     const blocks = [
         {
             type: 'section',

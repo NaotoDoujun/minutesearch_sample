@@ -1,8 +1,10 @@
+const { i18n } = require('../../locales');
 const userRateCommentModalViews = async (userinfo, ratingItem, my_rating_info) => {
-    const title_txt = 'User Rating Comment';
-    const submit_txt = 'Submit';
-    const label_comment_txt = my_rating_info.data.positive ? 'Good Reason Comment' : 'Bad Reason Comment';
-    const placeholder_txt = 'Please enter the reason.';
+    userinfo.user.locale === 'ja-JP' ? i18n.setLocale('ja') : i18n.setLocale('en');
+    const title_txt = i18n.__('user_rating_comment_title');
+    const submit_txt = i18n.__('submit');
+    const label_comment_txt = my_rating_info.data.positive ? i18n.__('good_comment_label') : i18n.__('bad_comment_label');
+    const placeholder_txt = i18n.__('comment_placeholder');
     const my_comment = my_rating_info.data.positive ? my_rating_info.data.positive_comment : my_rating_info.data.negative_comment;
     const view = {
         type: 'modal',

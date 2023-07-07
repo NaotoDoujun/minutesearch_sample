@@ -1,8 +1,10 @@
 const { appApi, slackApi } = require('../../webApi');
+const { i18n } = require('../../locales');
 const { userRateCommentModalViews } = require('./user_rate_comment_modal_view');
 
 const rateGoodFromMessage = async (body, client, context, logger) => {
     const userinfo = await slackApi.getUserInfo(client, body.user.id);
+    userinfo.user.locale === 'ja-JP' ? i18n.setLocale('ja') : i18n.setLocale('en');
     const channel_id = body.container.channel_id;
     const ts = body.message.ts;
     const ratingItem = {
@@ -15,14 +17,14 @@ const rateGoodFromMessage = async (body, client, context, logger) => {
     if (my_rating_info) {
         const score_block_id = `user_rating_score_${ratingItem.document_id}`;
         const actions_block_id = `user_rating_actions_${ratingItem.document_id}`;
-        const notify_txt = 'PAressed Good Button.';
+        const notify_txt = i18n.__('notify_pressed_good');
 
         body.message.blocks.forEach(block => {
             // update score block
             if (block.block_id === score_block_id) {
                 if (block.elements && block.elements.length === 1) {
                     if ('text' in block.elements[0]) {
-                        block.elements[0].text = `User Rating Score: ${my_rating_info.data.rating}`;
+                        block.elements[0].text = i18n.__('user_rating_score', { rating: my_rating_info.data.rating });
                     }
                 } else {
                     logger.error("score_blocks elements length was not 1. wonder who changed 'user_rating_score_' view? ");
@@ -58,16 +60,16 @@ const rateGoodFromMessage = async (body, client, context, logger) => {
         });
 
         // redaraw message blocks
-        await client.chat.update({
+        await slackApi.chatUpdate(client, {
             channel: channel_id,
             ts: ts,
             text: notify_txt,
             blocks: body.message.blocks,
         });
 
-        // open modal
+        // open comment modal
         if (my_rating_info.data.need_comment) {
-            await client.views.open({
+            await slackApi.viewsOpen(client, {
                 token: context.botToken,
                 trigger_id: body.trigger_id,
                 view: await userRateCommentModalViews(userinfo, ratingItem, my_rating_info),
@@ -94,7 +96,7 @@ const rateGoodFromView = async (body, client, context, logger) => {
             if (block.block_id === score_block_id) {
                 if (block.elements && block.elements.length === 1) {
                     if ('text' in block.elements[0]) {
-                        block.elements[0].text = `User Rating Score: ${my_rating_info.data.rating}`;
+                        block.elements[0].text = i18n.__('user_rating_score', { rating: my_rating_info.data.rating });
                     }
                 } else {
                     logger.error("score_blocks elements length was not 1. wonder who changed 'user_rating_score_' view? ");
@@ -140,15 +142,15 @@ const rateGoodFromView = async (body, client, context, logger) => {
         };
 
         // redraw view blocks
-        await client.views.update({
+        await slackApi.viewsUpdate(client, {
             token: context.botToken,
             external_id: body.view.external_id,
             view: view,
         });
 
-        // open modal
+        // push comment modal
         if (my_rating_info.data.need_comment) {
-            await client.views.push({
+            await slackApi.viewsPush(client, {
                 token: context.botToken,
                 trigger_id: body.trigger_id,
                 view: await userRateCommentModalViews(userinfo, ratingItem, my_rating_info),
@@ -159,7 +161,7 @@ const rateGoodFromView = async (body, client, context, logger) => {
 
 const userRateGoodActionCallback = async ({ ack, body, client, context, logger }) => {
     try {
-        ack();
+        await ack();
         if (body.container.type === 'message') {
             await rateGoodFromMessage(body, client, context, logger);
         } else if (body.container.type === 'view') {

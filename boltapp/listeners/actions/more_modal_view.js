@@ -1,4 +1,6 @@
+const { i18n } = require('../../locales');
 const moreModalViews = async (userinfo, settings, recommends, from, message) => {
+    userinfo.user.locale === 'ja-JP' ? i18n.setLocale('ja') : i18n.setLocale('en');
     const title_txt = 'More';
     const total = recommends.data.total.value;
     const blocks = [
@@ -6,7 +8,7 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
         type: 'header',
         text: {
           type: 'plain_text',
-          text: 'Posted Text',
+          text: i18n.__('user_posted_text_title'),
           emoji: true
         }
       },
@@ -92,7 +94,7 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
             elements: [
               {
                 type: 'mrkdwn',
-                text: `User Rating Score: ${rating}`
+                text: i18n.__('user_rating_score', { rating: rating }),
               }
             ]
           },
@@ -174,7 +176,7 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: ':warning: Block items overflow...'
+          text: i18n.__('blocks_overflow'),
         }
       });
     }

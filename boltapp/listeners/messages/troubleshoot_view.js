@@ -1,4 +1,6 @@
+const { i18n } = require('../../locales');
 const troubleShootBlocks = async (userinfo, settings, message, recommends) => {
+  userinfo.user.locale === 'ja-JP' ? i18n.setLocale('ja') : i18n.setLocale('en');
   const total = recommends.data.total.value;
   const blocks = [
     {
@@ -12,7 +14,7 @@ const troubleShootBlocks = async (userinfo, settings, message, recommends) => {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `Total Recommends Count:${total}`
+        text: i18n.__('recommends_hit_count', { total: total }),
       }
     },
     { type: 'divider' }
@@ -90,7 +92,7 @@ const troubleShootBlocks = async (userinfo, settings, message, recommends) => {
       elements: [
         {
           type: 'mrkdwn',
-          text: `User Rating Score: ${rating}`
+          text: i18n.__('user_rating_score', { rating: rating }),
         }
       ]
     },
@@ -135,7 +137,7 @@ const troubleShootBlocks = async (userinfo, settings, message, recommends) => {
           type: 'button',
           text: {
             type: 'plain_text',
-            text: 'More'
+            text: i18n.__('more'),
           },
           value: message.text,
           action_id: 'open_more_modal_button'
@@ -153,7 +155,7 @@ const troubleShootBlocks = async (userinfo, settings, message, recommends) => {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: ':warning: Block items overflow...'
+        text: i18n.__('blocks_overflow'),
       }
     });
   }

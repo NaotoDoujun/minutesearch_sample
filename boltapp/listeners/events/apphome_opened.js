@@ -8,7 +8,7 @@ const appHomeOpenedCallback = async ({ client, event, logger }) => {
   try {
     const userinfo = await slackApi.getUserInfo(client, event.user);
     const blocks = await apphomeBlocks(userinfo, event);
-    await client.views.publish({
+    await slackApi.viewsPublish(client, {
       user_id: event.user,
       view: {
         type: 'home',

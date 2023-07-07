@@ -109,6 +109,85 @@ const joinChannel = async (client, channelId) => {
   return result;
 };
 
+/**
+ * 
+ * @param {*} client 
+ * @param {*} message 
+ * @returns 
+ * 
+ * Special Tier 
+ * generally allows posting one message per second per channel, while also maintaining a workspace-wide limit.
+ */
+const chatPostMessage = async (client, message) => {
+  const result = await client.chat.postMessage(message);
+  return result;
+};
+
+/**
+ * 
+ * @param {*} client 
+ * @param {*} params 
+ * @returns 
+ * 
+ * Tier 3
+ */
+const chatUpdate = async (client, params) => {
+  const result = await client.chat.update(params);
+  return result;
+};
+
+/**
+ * 
+ * @param {*} client 
+ * @param {*} params 
+ * @returns 
+ * 
+ * Tier 4
+ */
+const viewsOpen = async (client, params) => {
+  const result = await client.views.open(params);
+  return result;
+};
+
+/**
+ * 
+ * @param {*} client 
+ * @param {*} params 
+ * @returns 
+ * 
+ * Tier 4
+ */
+const viewsPublish = async (client, params) => {
+  const result = await client.views.publish(params);
+  return result;
+};
+
+/**
+ * 
+ * @param {*} client 
+ * @param {*} params 
+ * @returns 
+ * 
+ * Tier 4
+ */
+const viewsUpdate = async (client, params) => {
+  const result = await client.views.update(params);
+  return result;
+};
+
+/**
+ * 
+ * @param {*} client 
+ * @param {*} params 
+ * @returns 
+ * 
+ * Tier 4
+ */
+const viewsPush = async (client, params) => {
+  const result = await client.views.push(params);
+  return result;
+};
+
 module.exports = {
   getChannelById,
   getChannelByName,
@@ -118,4 +197,10 @@ module.exports = {
   inviteMembers,
   isMember,
   joinChannel,
+  chatPostMessage,
+  chatUpdate,
+  viewsPublish,
+  viewsOpen,
+  viewsUpdate,
+  viewsPush,
 };

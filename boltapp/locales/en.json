@@ -1,0 +1,21 @@
+{
+    "greeting": "*Welcome home, <@{{user}}> :house:*",
+    "settings_description": "Set maximum number of display size and minimum score threshold.",
+    "settings_open_button": "Open Setting Modal",
+    "settings_title": "Settings",
+    "size_label": "Display Size",
+    "min_score_label": "Min Score",
+    "submit": "Submit",
+    "user_rating_comment_title": "User Rating Comment",
+    "good_comment_label": "Good Reason Comment",
+    "bad_comment_label": "Bad Reason Comment",
+    "comment_placeholder": "Please enter the reason.",
+    "recommends_hit_count": "Hit recommends: {{total}}",
+    "channel_archived": "target channel: {{channel}} is archived.",
+    "user_rating_score": "User Rating Score: {{rating}}",
+    "blocks_overflow": ":warning: Block items overflow...",
+    "more": "More",
+    "user_posted_text_title": "User Posted Text",
+    "notify_pressed_good": "Pressed Good Button",
+    "notify_pressed_bad": "Pressed Bad Button"
+}

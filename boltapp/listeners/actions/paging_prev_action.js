@@ -12,7 +12,7 @@ const pagingPrevActionCallback = async({ ack, body, client, context, logger}) =>
             text: body.view.blocks[1].text.text
         };
         const recommends = await appApi.troubleSearch(settings.size, settings.min_score, from, message);
-        await client.views.update({
+        await slackApi.viewsUpdate(client, {
             token: context.botToken,
             view_id: body.view.id,
             view: await moreModalViews(userinfo, settings, recommends, from, message),

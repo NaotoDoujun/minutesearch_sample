@@ -11,7 +11,7 @@ const openMoreModalActionCallback = async ({ ack, body, client, context, logger 
     const settings = await Database.getUserSettings(userinfo.user.id, logger);
     const from = settings.size;
     const recommends = await appApi.troubleSearch(settings.size, settings.min_score, from, message);
-    await client.views.open({
+    await slackApi.viewsOpen(client, {
       token: context.botToken,
       trigger_id: body.trigger_id,
       view: await moreModalViews(userinfo, settings, recommends, from, message),
