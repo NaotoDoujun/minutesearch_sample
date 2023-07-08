@@ -4,7 +4,7 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
   if (userinfo.user.locale === 'ja-JP') {
     i18n.setLocale('ja');
   }
-  const title_txt = 'More';
+  const title_txt = i18n.__('more');
   const total = recommends.data.total.value;
   const blocks = [
     {
@@ -34,8 +34,8 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
     },
     { type: 'divider' },
   ];
-  for (const i in recommends.data.hits) {
-    const recommend = recommends.data.hits[i];
+
+  Object.values(recommends.data.hits).forEach((recommend) => {
     const trouble_header = recommend.trouble_header ? recommend.trouble_header : 'trouble';
     const cause_header = recommend.cause_header ? recommend.cause_header : 'cause';
     const response_header = recommend.response_header ? recommend.response_header : 'response';
@@ -53,7 +53,8 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
       positive_comment: '',
       negative_comment: '',
     };
-    const my_rating_info = rated_users.find(({ user }) => user === userinfo.user.id) ?? default_rating_info;
+    const my_rating_info = (
+      rated_users.find(({ user }) => user === userinfo.user.id) ?? default_rating_info);
 
     blocks.push(
       {
@@ -141,7 +142,7 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
       },
       { type: 'divider' },
     );
-  }
+  });
 
   const elements = [];
   if (from > settings.size) {

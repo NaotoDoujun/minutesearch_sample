@@ -79,10 +79,14 @@ const troubleShootMessageCallback = async ({ message, client, say, logger }) => 
           thread_ts: message.ts,
         });
       } else {
-        // target channel have to be name cuz this script going to create the channel when its nothing.
+        // target channel have to be name
+        // cuz this script going to create the channel when its nothing.
+        const username = (
+          userinfo.user.profile.display_name ? userinfo.user.profile.display_name
+            : userinfo.user.name);
         const user_message = {
           channel: targetChannelName,
-          username: userinfo.user.profile.display_name ? userinfo.user.profile.display_name : userinfo.user.name,
+          username,
           icon_url: userinfo.user.profile.image_48,
           text: `<#${message.channel}>: ${message.text}`,
         };

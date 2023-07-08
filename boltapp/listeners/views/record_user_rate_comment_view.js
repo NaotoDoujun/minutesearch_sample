@@ -16,12 +16,12 @@ const recordUserRateCommentViewCallback = async ({ ack, client, body, view, logg
     const comment_error_txt = 'Plese enter the reason.';
     const formValues = view.state.values;
     const metadatas = view.private_metadata.split(':');
-    const comment = formValues.user_rate_comment_text.user_rate_comment_plain_text_input.value;
+    const comment = formValues.user_rate_comment_text.user_rate_comment_plain_text_input.value ?? '';
     const commentItem = {
       document_id: metadatas[0],
       user_id: userinfo.user.id,
       rate_type: metadatas[1],
-      comment: comment ? comment : '',
+      comment,
     };
 
     const validComment = isValidComment(commentItem.comment, false);

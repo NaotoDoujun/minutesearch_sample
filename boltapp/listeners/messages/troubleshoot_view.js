@@ -22,8 +22,8 @@ const troubleShootBlocks = async (userinfo, settings, message, recommends) => {
     },
     { type: 'divider' },
   ];
-  for (const i in recommends.data.hits) {
-    const recommend = recommends.data.hits[i];
+
+  Object.values(recommends.data.hits).forEach((recommend) => {
     const trouble_header = recommend.trouble_header ? recommend.trouble_header : 'trouble';
     const cause_header = recommend.cause_header ? recommend.cause_header : 'cause';
     const response_header = recommend.response_header ? recommend.response_header : 'response';
@@ -41,7 +41,8 @@ const troubleShootBlocks = async (userinfo, settings, message, recommends) => {
       positive_comment: '',
       negative_comment: '',
     };
-    const my_rating_info = rated_users.find(({ user }) => user === userinfo.user.id) ?? default_rating_info;
+    const my_rating_info = (
+      rated_users.find(({ user }) => user === userinfo.user.id) ?? default_rating_info);
 
     blocks.push(
       {
@@ -129,7 +130,7 @@ const troubleShootBlocks = async (userinfo, settings, message, recommends) => {
       },
       { type: 'divider' },
     );
-  }
+  });
 
   if (total > settings.size) {
     blocks.push({

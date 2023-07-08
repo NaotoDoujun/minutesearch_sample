@@ -8,7 +8,8 @@ const userRateCommentModalViews = async (userinfo, ratingItem, my_rating_info) =
   const submit_txt = i18n.__('submit');
   const label_comment_txt = my_rating_info.data.positive ? i18n.__('good_comment_label') : i18n.__('bad_comment_label');
   const placeholder_txt = i18n.__('comment_placeholder');
-  const my_comment = my_rating_info.data.positive ? my_rating_info.data.positive_comment : my_rating_info.data.negative_comment;
+  const my_rating = my_rating_info.data;
+  const my_comment = my_rating.positive ? my_rating.positive_comment : my_rating.negative_comment;
   const view = {
     type: 'modal',
     private_metadata: `${ratingItem.document_id}:${ratingItem.rate_type}`,
