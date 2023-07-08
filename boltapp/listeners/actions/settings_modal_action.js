@@ -1,5 +1,6 @@
 const { slackApi } = require('../../webApi');
 const { settingsModalViews } = require('./settings_modal_view');
+
 const openSettingsModalActionCallback = async ({ ack, body, client, context, logger }) => {
   try {
     await ack();

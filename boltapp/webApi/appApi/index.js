@@ -16,6 +16,6 @@ const troubleUserRate = async (ratingItem) => {
 const troubleRecordComment = async (commentItem) => {
   const result = await axios.post(`${apihost}/trouble_record_comment/`, commentItem);
   return result;
-}
+};
 
 module.exports = { troubleSearch, troubleUserRate, troubleRecordComment };

@@ -12,7 +12,7 @@ const appHomeOpenedCallback = async ({ client, event, logger }) => {
       user_id: event.user,
       view: {
         type: 'home',
-        blocks: blocks
+        blocks,
       },
     });
   } catch (error) {

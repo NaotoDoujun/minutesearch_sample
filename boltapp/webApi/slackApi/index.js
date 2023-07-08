@@ -1,5 +1,5 @@
 /**
- *
+ * getChannelById
  * @param {*} client
  * @param {*} channelId
  * @returns
@@ -27,7 +27,7 @@ const getChannelByName = async (client, channelName) => {
 };
 
 /**
- *
+ * getActiveMembers
  * @param {*} client
  * @returns
  *
@@ -40,7 +40,7 @@ const getActiveMembers = async (client) => {
 };
 
 /**
- *
+ * getUserInfo
  * @param {*} client
  * @param {*} userId
  * @returns
@@ -56,7 +56,7 @@ const getUserInfo = async (client, userId) => {
 };
 
 /**
- *
+ * createChannel
  * @param {*} client
  * @param {*} channelName
  * @returns
@@ -69,7 +69,7 @@ const createChannel = async (client, channelName) => {
 };
 
 /**
- *
+ * inviteMembers
  * @param {*} client
  * @param {*} channnelId
  * @param {*} members
@@ -83,7 +83,7 @@ const inviteMembers = async (client, channnelId, members) => {
 };
 
 /**
- *
+ * isMember
  * @param {*} client
  * @param {*} channelId
  * @param {*} userId
@@ -97,7 +97,7 @@ const isMember = async (client, channelId, userId) => {
 };
 
 /**
- *
+ * joinChannel
  * @param {*} client
  * @param {*} channelId
  * @returns
@@ -110,13 +110,14 @@ const joinChannel = async (client, channelId) => {
 };
 
 /**
- * 
- * @param {*} client 
- * @param {*} message 
- * @returns 
- * 
- * Special Tier 
- * generally allows posting one message per second per channel, while also maintaining a workspace-wide limit.
+ * chatPostMessage
+ * @param {*} client
+ * @param {*} message
+ * @returns
+ *
+ * Special Tier
+ * generally allows posting one message per second per channel,
+ * while also maintaining a workspace-wide limit.
  */
 const chatPostMessage = async (client, message) => {
   const result = await client.chat.postMessage(message);
@@ -124,11 +125,11 @@ const chatPostMessage = async (client, message) => {
 };
 
 /**
- * 
- * @param {*} client 
- * @param {*} params 
- * @returns 
- * 
+ * chatUpdate
+ * @param {*} client
+ * @param {*} params
+ * @returns
+ *
  * Tier 3
  */
 const chatUpdate = async (client, params) => {
@@ -137,11 +138,11 @@ const chatUpdate = async (client, params) => {
 };
 
 /**
- * 
- * @param {*} client 
- * @param {*} params 
- * @returns 
- * 
+ * viewsOpen
+ * @param {*} client
+ * @param {*} params
+ * @returns
+ *
  * Tier 4
  */
 const viewsOpen = async (client, params) => {
@@ -150,11 +151,11 @@ const viewsOpen = async (client, params) => {
 };
 
 /**
- * 
- * @param {*} client 
- * @param {*} params 
- * @returns 
- * 
+ * viewsPublish
+ * @param {*} client
+ * @param {*} params
+ * @returns
+ *
  * Tier 4
  */
 const viewsPublish = async (client, params) => {
@@ -163,11 +164,11 @@ const viewsPublish = async (client, params) => {
 };
 
 /**
- * 
- * @param {*} client 
- * @param {*} params 
- * @returns 
- * 
+ * viewsUpdate
+ * @param {*} client
+ * @param {*} params
+ * @returns
+ *
  * Tier 4
  */
 const viewsUpdate = async (client, params) => {
@@ -176,11 +177,11 @@ const viewsUpdate = async (client, params) => {
 };
 
 /**
- * 
- * @param {*} client 
- * @param {*} params 
- * @returns 
- * 
+ * viewsPush
+ * @param {*} client
+ * @param {*} params
+ * @returns
+ *
  * Tier 4
  */
 const viewsPush = async (client, params) => {

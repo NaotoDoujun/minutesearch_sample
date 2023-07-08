@@ -5,12 +5,12 @@ const { config } = require('../../config');
 const uri = `mongodb://mongo:mongo@${config.MONGODB_HOST}/app?retryWrites=true&w=majority`;
 
 class mongoDB {
-  static async connect() {
+  static async connect(logger) {
     await mongoose.connect(
       uri,
       { useNewUrlParser: true, useUnifiedTopology: true },
     );
-    console.log('DB(mongodb) is connected.');
+    logger.info('DB(mongodb) is connected.');
   }
 
   static async getUserSettings(userId) {

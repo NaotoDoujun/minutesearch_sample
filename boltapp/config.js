@@ -13,7 +13,7 @@ const config = {
   APPAPI_HOST: process.env.NODE_ENV === 'production' ? 'http://appapi:8000' : 'http://localhost:8065',
   MONGODB_HOST: process.env.NODE_ENV === 'production' ? 'mongodb:27017' : 'localhost:27017',
   DEFAULT_SIZE: process.env.DEFAULT_SIZE || 3,
-  DEFAULT_MAX_SIZE: process.env.DEFAULT_MAX_SIZE || 5, 
+  DEFAULT_MAX_SIZE: process.env.DEFAULT_MAX_SIZE || 5,
   DEFAULT_MIN_SCORE: process.env.DEFAULT_MIN_SCORE || 1.65,
   DEFAULT_MAX_SCORE: process.env.DEFAULT_MAX_SCORE || 2,
 };

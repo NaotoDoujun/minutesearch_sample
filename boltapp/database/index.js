@@ -3,7 +3,7 @@ const db = require('./mongoose').mongoDB;
 class Database {
   static async connect(logger) {
     try {
-      await db.connect();
+      await db.connect(logger);
     } catch (error) {
       logger.error(error);
     }

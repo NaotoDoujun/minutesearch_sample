@@ -64,7 +64,9 @@ const recursivePostMessage = async (client, message, logger) => {
 const troubleShootMessageCallback = async ({ message, client, say, logger }) => {
   try {
     const userinfo = await slackApi.getUserInfo(client, message.user);
-    userinfo.user.locale === 'ja-JP' ? i18n.setLocale('ja') : i18n.setLocale('en');
+    if (userinfo.user.locale === 'ja-JP') {
+      i18n.setLocale('ja');
+    }
     const targetChannelName = userinfo.user.locale === 'ja-JP' ? config.SLACK_CHANNEL_NAME_JP : config.SLACK_CHANNEL_NAME_EN;
     const settings = await Database.getUserSettings(message.user, logger);
     const recommends = await appApi.troubleSearch(settings.size, settings.min_score, 0, message);

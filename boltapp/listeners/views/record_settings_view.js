@@ -3,10 +3,8 @@ const { Database } = require('../../database');
 const { config } = require('../../config');
 
 const recordSettingsViewCallback = async ({ ack, client, body, view, logger }) => {
-
-  await ack();
-
   try {
+    await ack();
     const userinfo = await slackApi.getUserInfo(client, body.user.id);
     const formValues = view.state.values;
     const settings = {
