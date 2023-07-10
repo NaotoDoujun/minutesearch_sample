@@ -1,4 +1,5 @@
 const { appApi, slackApi } = require('../../webApi');
+const { i18n } = require('../../locales');
 
 const isValidComment = (comment, check_input = true) => {
   if (check_input) {
@@ -13,7 +14,9 @@ const isValidComment = (comment, check_input = true) => {
 const recordUserRateCommentViewCallback = async ({ ack, client, body, view, logger }) => {
   try {
     const userinfo = await slackApi.getUserInfo(client, body.user.id);
-    const comment_error_txt = 'Plese enter the reason.';
+    if (userinfo.user.locale === 'ja-JP') {
+      i18n.setLocale('ja');
+    }
     const formValues = view.state.values;
     const metadatas = view.private_metadata.split(':');
     const comment = formValues.user_rate_comment_text.user_rate_comment_plain_text_input.value ?? '';
@@ -31,7 +34,7 @@ const recordUserRateCommentViewCallback = async ({ ack, client, body, view, logg
     } else {
       const errors = {};
       if (!validComment) {
-        errors.user_rate_comment_text = comment_error_txt;
+        errors.user_rate_comment_text = i18n.__('comment_error');
       }
       await ack({ response_action: 'errors', errors });
     }
