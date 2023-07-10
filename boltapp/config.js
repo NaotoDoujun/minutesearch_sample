@@ -10,7 +10,7 @@ const config = {
   SLACK_SOCKET_MODE: process.env.SLACK_SOCKET_MODE || true,
   SLACK_CHANNEL_NAME_JP: process.env.SLACK_CHANNEL_NAME_JP || 'something',
   SLACK_CHANNEL_NAME_EN: process.env.SLACK_CHANNEL_NAME_EN || 'something',
-  APPAPI_HOST: process.env.NODE_ENV === 'production' ? 'http://appapi:8000' : 'http://localhost:8065',
+  APPAPI_HOST: process.env.NODE_ENV === 'production' ? 'appapi:8000' : 'localhost:8065',
   MONGODB_HOST: process.env.NODE_ENV === 'production' ? 'mongodb:27017' : 'localhost:27017',
   DEFAULT_SIZE: process.env.DEFAULT_SIZE || 3,
   DEFAULT_MAX_SIZE: process.env.DEFAULT_MAX_SIZE || 5,
