@@ -12,6 +12,7 @@ const userRateCommentModalViews = async (userinfo, ratingItem, my_rating_info) =
   const my_comment = my_rating.positive ? my_rating.positive_comment : my_rating.negative_comment;
   const view = {
     type: 'modal',
+    external_id: 'comment_modal',
     private_metadata: `${ratingItem.document_id}:${ratingItem.rate_type}`,
     callback_id: 'user-rate-comment',
     clear_on_close: true,
