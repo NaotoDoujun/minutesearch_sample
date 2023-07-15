@@ -29,7 +29,8 @@ class mongoDB {
       min_score: userSettings.min_score,
     };
     const options = { new: false, upsert: true };
-    await model.Setting.findOneAndUpdate(query, update, options).lean();
+    const result = await model.Setting.findOneAndUpdate(query, update, options).lean();
+    return result;
   }
 
   static async getHistory(query) {

@@ -12,7 +12,7 @@ const isValidComment = (comment, check_input = true) => {
   return true;
 };
 
-const updateHistory = async (commentItem, history) => {
+const updateHistory = async (commentItem, history, logger) => {
   const recommend = (
     history.recommends.find(({ document_id }) => document_id === commentItem.document_id));
   if (recommend) {
@@ -27,7 +27,7 @@ const updateHistory = async (commentItem, history) => {
       }
     }
   }
-  await Database.setHistory(history);
+  await Database.setHistory(history, logger);
 };
 
 const recordUserRateCommentViewCallback = async ({ ack, client, body, view, logger }) => {
@@ -55,9 +55,9 @@ const recordUserRateCommentViewCallback = async ({ ack, client, body, view, logg
         channel: metadata.channel,
         client_msg_id: metadata.client_msg_id,
         user: userinfo.user.id,
-      });
+      }, logger);
       // record comment to mongodb as history
-      await updateHistory(commentItem, history);
+      await updateHistory(commentItem, history, logger);
     } else {
       const errors = {};
       if (!validComment) {

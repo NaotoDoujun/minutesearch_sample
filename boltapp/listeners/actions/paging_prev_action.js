@@ -15,7 +15,7 @@ const pagingPrevActionCallback = async ({ ack, body, client, context, logger }) 
       channel: params.channel,
       client_msg_id: params.client_msg_id,
       user: userinfo.user.id,
-    });
+    }, logger);
     const message = {
       client_msg_id: history.client_msg_id,
       channel: history.channel,

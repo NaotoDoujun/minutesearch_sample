@@ -11,7 +11,7 @@ const app = new App({
   appToken: config.SLACK_APP_TOKEN,
   deferInitialization: true,
   port: config.BOT_PORT,
-  logLevel: LogLevel.DEBUG,
+  logLevel: config.NODE_ENV === 'production' ? LogLevel.INFO : LogLevel.DEBUG,
 });
 
 /** Register Listeners */

@@ -3,7 +3,7 @@ const { Database } = require('../../database');
 const { i18n } = require('../../locales');
 const { userRateCommentModalViews } = require('./user_rate_comment_modal_view');
 
-const updateHistory = async (ratingItem, history, score) => {
+const updateHistory = async (ratingItem, history, score, logger) => {
   const h_recommend = (
     history.recommends.find(({ document_id }) => document_id === ratingItem.document_id));
   if (h_recommend) {
@@ -30,7 +30,9 @@ const updateHistory = async (ratingItem, history, score) => {
         positive_comment: '',
         negative_comment: '',
       });
-      h_recommend.markModified('rated_users');
+      if ('markModified' in h_recommend) {
+        h_recommend.markModified('rated_users');
+      }
       h_recommend.rating += 1;
     }
   } else {
@@ -49,9 +51,11 @@ const updateHistory = async (ratingItem, history, score) => {
       });
     }
     history.recommends.push(o_recommend.data);
-    history.markModified('recommends');
+    if ('markModified' in history) {
+      history.markModified('recommends');
+    }
   }
-  await Database.setHistory(history);
+  await Database.setHistory(history, logger);
 };
 
 const rateGoodFromMessage = async (body, client, context, logger) => {
@@ -64,7 +68,7 @@ const rateGoodFromMessage = async (body, client, context, logger) => {
     channel: params.channel,
     client_msg_id: params.client_msg_id,
     user: userinfo.user.id,
-  });
+  }, logger);
   const ratingItem = {
     document_id: params.document_id,
     user_id: userinfo.user.id,
@@ -132,7 +136,7 @@ const rateGoodFromMessage = async (body, client, context, logger) => {
     });
 
     // record user rating to mongodb as history
-    await updateHistory(ratingItem, history, params.score);
+    await updateHistory(ratingItem, history, params.score, logger);
   }
 };
 
@@ -146,7 +150,7 @@ const rateGoodFromView = async (body, client, context, logger) => {
     channel: params.channel,
     client_msg_id: params.client_msg_id,
     user: userinfo.user.id,
-  });
+  }, logger);
   const ratingItem = {
     document_id: params.document_id,
     user_id: userinfo.user.id,
@@ -222,7 +226,7 @@ const rateGoodFromView = async (body, client, context, logger) => {
     });
 
     // record user rating to mongodb as history
-    await updateHistory(ratingItem, history, params.score);
+    await updateHistory(ratingItem, history, params.score, logger);
   }
 };
 
