@@ -1,18 +1,77 @@
 const { appApi, slackApi } = require('../../webApi');
+const { Database } = require('../../database');
 const { i18n } = require('../../locales');
 const { userRateCommentModalViews } = require('./user_rate_comment_modal_view');
+
+const updateHistory = async (ratingItem, history, score) => {
+  const h_recommend = (
+    history.recommends.find(({ document_id }) => document_id === ratingItem.document_id));
+  if (h_recommend) {
+    const my_rating_info = (
+      h_recommend.rated_users.find(({ user }) => user === ratingItem.user_id));
+    if (my_rating_info) {
+      if (!my_rating_info.positive && !my_rating_info.negative) {
+        my_rating_info.positive = true;
+        h_recommend.rating += 1;
+      } else if (my_rating_info.positive && !my_rating_info.negative) {
+        my_rating_info.positive = false;
+        h_recommend.rating -= 1;
+      } else if (!my_rating_info.positive && my_rating_info.negative) {
+        my_rating_info.positive = true;
+        my_rating_info.negative = false;
+        h_recommend.rating += 2;
+      }
+    } else {
+      h_recommend.rated_users.push({
+        user: ratingItem.user_id,
+        user_name: ratingItem.user_name,
+        positive: true,
+        negative: false,
+        positive_comment: '',
+        negative_comment: '',
+      });
+      h_recommend.markModified('rated_users');
+      h_recommend.rating += 1;
+    }
+  } else {
+    const o_recommend = await appApi.toubleGetSource(ratingItem.document_id);
+    o_recommend.data.score = score;
+    const my_rating_info = (
+      o_recommend.data.rated_users.find(({ user }) => user === ratingItem.user_id));
+    if (!my_rating_info) {
+      o_recommend.data.rated_users.push({
+        user: ratingItem.user_id,
+        user_name: ratingItem.user_name,
+        positive: true,
+        negative: false,
+        positive_comment: '',
+        negative_comment: '',
+      });
+    }
+    history.recommends.push(o_recommend.data);
+    history.markModified('recommends');
+  }
+  await Database.setHistory(history);
+};
 
 const rateGoodFromMessage = async (body, client, context, logger) => {
   const userinfo = await slackApi.getUserInfo(client, body.user.id);
   if (userinfo.user.locale === 'ja-JP') {
     i18n.setLocale('ja');
   }
+  const params = JSON.parse(body.actions[0].value);
+  const history = await Database.getHistory({
+    channel: params.channel,
+    client_msg_id: params.client_msg_id,
+    user: userinfo.user.id,
+  });
   const ratingItem = {
-    document_id: body.actions[0].value,
+    document_id: params.document_id,
     user_id: userinfo.user.id,
     user_name: `${userinfo.user.real_name} / ${userinfo.user.name}`,
     rate_type: 'good',
   };
+  // record user rating to elasticsearch as original resource
   const my_rating_info = await appApi.troubleUserRate(ratingItem);
   if (my_rating_info) {
     const score_block_id = `user_rating_score_${ratingItem.document_id}`;
@@ -55,6 +114,15 @@ const rateGoodFromMessage = async (body, client, context, logger) => {
       }
     });
 
+    // open comment modal
+    if (my_rating_info.data.need_comment) {
+      await slackApi.viewsOpen(client, {
+        token: context.botToken,
+        trigger_id: body.trigger_id,
+        view: await userRateCommentModalViews(userinfo, ratingItem, my_rating_info, params),
+      });
+    }
+
     // redaraw message blocks
     await slackApi.chatUpdate(client, {
       channel: body.container.channel_id,
@@ -63,25 +131,29 @@ const rateGoodFromMessage = async (body, client, context, logger) => {
       blocks: body.message.blocks,
     });
 
-    // open comment modal
-    if (my_rating_info.data.need_comment) {
-      await slackApi.viewsOpen(client, {
-        token: context.botToken,
-        trigger_id: body.trigger_id,
-        view: await userRateCommentModalViews(userinfo, ratingItem, my_rating_info),
-      });
-    }
+    // record user rating to mongodb as history
+    await updateHistory(ratingItem, history, params.score);
   }
 };
 
 const rateGoodFromView = async (body, client, context, logger) => {
   const userinfo = await slackApi.getUserInfo(client, body.user.id);
+  if (userinfo.user.locale === 'ja-JP') {
+    i18n.setLocale('ja');
+  }
+  const params = JSON.parse(body.actions[0].value);
+  const history = await Database.getHistory({
+    channel: params.channel,
+    client_msg_id: params.client_msg_id,
+    user: userinfo.user.id,
+  });
   const ratingItem = {
-    document_id: body.actions[0].value,
+    document_id: params.document_id,
     user_id: userinfo.user.id,
     user_name: `${userinfo.user.real_name} / ${userinfo.user.name}`,
     rate_type: 'good',
   };
+  // record user rating to elasticsearch as original resource
   const my_rating_info = await appApi.troubleUserRate(ratingItem);
   if (my_rating_info) {
     const score_block_id = `user_rating_score_${ratingItem.document_id}`;
@@ -123,6 +195,15 @@ const rateGoodFromView = async (body, client, context, logger) => {
       }
     });
 
+    // push comment modal
+    if (my_rating_info.data.need_comment) {
+      await slackApi.viewsPush(client, {
+        token: context.botToken,
+        trigger_id: body.trigger_id,
+        view: await userRateCommentModalViews(userinfo, ratingItem, my_rating_info, params),
+      });
+    }
+
     const view = {
       type: 'modal',
       external_id: 'more_modal',
@@ -140,14 +221,8 @@ const rateGoodFromView = async (body, client, context, logger) => {
       view,
     });
 
-    // push comment modal
-    if (my_rating_info.data.need_comment) {
-      await slackApi.viewsPush(client, {
-        token: context.botToken,
-        trigger_id: body.trigger_id,
-        view: await userRateCommentModalViews(userinfo, ratingItem, my_rating_info),
-      });
-    }
+    // record user rating to mongodb as history
+    await updateHistory(ratingItem, history, params.score);
   }
 };
 

@@ -4,6 +4,8 @@ INPUT_ES_INDEX_NAME='pdfdoc'
 MINUTE_ES_INDEX_NAME='minutes'
 TROUBLE_ES_INDEX_NAME='troubles'
 
+MONGODB_HOST='mongodb:27017'
+
 # Spacy Eng Model
 SPACY_EN_MODEL = 'en_core_web_sm'
 

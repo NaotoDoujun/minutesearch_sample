@@ -20,6 +20,5 @@ sumy==0.11.0
 tinysegmenter==0.4
 langid==1.1.6
 pyknp==0.6.1
-fastapi==0.78.0 
-uvicorn==0.17.6 
+pymongo==4.4.1
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.1/en_core_web_sm-3.4.1.tar.gz

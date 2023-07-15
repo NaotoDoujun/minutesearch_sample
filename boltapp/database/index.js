@@ -26,6 +26,23 @@ class Database {
     }
     return null;
   }
+
+  static async getHistory(query, logger) {
+    try {
+      return await db.getHistory(query);
+    } catch (error) {
+      logger.error(error);
+    }
+    return null;
+  }
+
+  static async setHistory(history, logger) {
+    try {
+      await db.setHistory(history);
+    } catch (error) {
+      logger.error(error);
+    }
+  }
 }
 
 module.exports = { Database };

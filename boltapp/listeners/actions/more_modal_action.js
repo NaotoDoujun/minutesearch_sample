@@ -6,8 +6,17 @@ const openMoreModalActionCallback = async ({ ack, body, client, context, logger 
   try {
     await ack();
     const userinfo = await slackApi.getUserInfo(client, body.user.id);
+    const params = JSON.parse(body.actions[0].value);
+    const history = await Database.getHistory({
+      channel: params.channel,
+      client_msg_id: params.client_msg_id,
+      user: userinfo.user.id,
+    });
     const message = {
-      text: body.actions[0].value,
+      client_msg_id: history.client_msg_id,
+      channel: history.channel,
+      user: history.user,
+      text: history.text,
     };
     const settings = await Database.getUserSettings(userinfo.user.id, logger);
     const from = settings.size;

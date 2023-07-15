@@ -7,15 +7,28 @@ const pagingNextActionCallback = async ({ ack, body, client, context, logger }) 
     await ack();
     const userinfo = await slackApi.getUserInfo(client, body.user.id);
     const settings = await Database.getUserSettings(userinfo.user.id, logger);
-    const from = parseInt(body.actions[0].value, 10);
+    const params = JSON.parse(body.actions[0].value);
+    const history = await Database.getHistory({
+      channel: params.channel,
+      client_msg_id: params.client_msg_id,
+      user: userinfo.user.id,
+    });
     const message = {
-      text: body.view.blocks[1].text.text,
+      client_msg_id: history.client_msg_id,
+      channel: history.channel,
+      user: history.user,
+      text: history.text,
     };
-    const recommends = await appApi.troubleSearch(settings.size, settings.min_score, from, message);
+    const recommends = await appApi.troubleSearch(
+      settings.size,
+      settings.min_score,
+      params.from,
+      message,
+    );
     await slackApi.viewsUpdate(client, {
       token: context.botToken,
       view_id: body.view.id,
-      view: await moreModalViews(userinfo, settings, recommends, from, message),
+      view: await moreModalViews(userinfo, settings, recommends, params.from, message),
     });
   } catch (error) {
     logger.error(error);

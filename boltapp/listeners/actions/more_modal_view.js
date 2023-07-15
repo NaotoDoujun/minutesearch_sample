@@ -19,7 +19,7 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `${message.text}`,
+        text: `<#${message.channel}>:${message.text}`,
       },
     },
     {
@@ -124,7 +124,12 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
               text: 'Good:thumbsup:',
               emoji: true,
             },
-            value: recommend.document_id,
+            value: JSON.stringify({
+              channel: message.channel,
+              client_msg_id: message.client_msg_id,
+              document_id: recommend.document_id,
+              score: recommend.score,
+            }),
             action_id: 'user_rate_good_button',
           },
           {
@@ -135,7 +140,12 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
               text: 'Bad:thumbsdown:',
               emoji: true,
             },
-            value: recommend.document_id,
+            value: JSON.stringify({
+              channel: message.channel,
+              client_msg_id: message.client_msg_id,
+              document_id: recommend.document_id,
+              score: recommend.score,
+            }),
             action_id: 'user_rate_bad_button',
           },
         ],
@@ -153,7 +163,11 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
           type: 'plain_text',
           text: '← Back',
         },
-        value: `${(from - settings.size)}`,
+        value: JSON.stringify({
+          channel: message.channel,
+          client_msg_id: message.client_msg_id,
+          from: from - settings.size,
+        }),
         action_id: 'paging_prev_button',
       },
     );
@@ -167,7 +181,11 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
           type: 'plain_text',
           text: 'Next →',
         },
-        value: `${(from + settings.size)}`,
+        value: JSON.stringify({
+          channel: message.channel,
+          client_msg_id: message.client_msg_id,
+          from: from + settings.size,
+        }),
         action_id: 'paging_next_button',
       },
     );

@@ -69,6 +69,17 @@ def troubles_search(item: Item, size: int = None, min_score: float = None, from_
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
+@app.get('/trouble_get_source/')
+def trouble_get_source(id: str = None):
+    try:
+        return troubleshoot_recommender.get_source(id)
+    except DocumentNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except IndexNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 @app.post("/trouble_user_rate/")
 def trouble_user_rate(item: RatingItem):
     try:
@@ -94,13 +105,22 @@ def trouble_record_comment(item: CommentItem):
         raise HTTPException(status_code=500, detail=str(e))
     
 @app.get('/trouble_user_rating_download/')
-async def trouble_user_rating_download():
+def trouble_user_rating_download():
     try:
         return StreamingResponse(troubleshoot_recommender.user_rating_to_excel(), 
             media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             headers={"Content-Disposition": 'attachment; filename="UserRating.xlsx"'})
     except IndexNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get('/trouble_user_ratig_history_download/')
+def trouble_user_rating_history_download(bot_name: str = None, tz_offset: int = 0):
+    try:
+        return StreamingResponse(troubleshoot_recommender.user_rating_history_to_excel(bot_name, tz_offset), 
+            media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={"Content-Disposition": 'attachment; filename="UserRatingHistories.xlsx"'})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

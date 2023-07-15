@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 import io
+import datetime
 from elasticsearch import Elasticsearch, helpers
 import mojimoji
 import spacy
 from enum import Enum
 import pandas as pd
 from sentence_transformers import SentenceTransformer
+import pymongo
+from pymongo import MongoClient
 import config
 
 class RateType(str, Enum):
@@ -121,6 +124,31 @@ class TroubleShootRecommender():
         self.logger = logger
         self.model = SentenceTransformer(config.SENTENCE_MODEL)
         self.es = Elasticsearch(config.ES_ENDPOINT, request_timeout=100)
+        self.mongo_client = MongoClient("mongodb://mongo:mongo@{}/?retryWrites=true&w=majority".format(config.MONGODB_HOST))
+
+    def get_source(self, id):
+        try:
+            if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
+                if self.es.exists_source(index=config.TROUBLE_ES_INDEX_NAME, id=id):
+                    response = self.es.get_source(index=config.TROUBLE_ES_INDEX_NAME, id=id)
+                    return {
+                        'document_id': id,
+                        'trouble_header': response['trouble_header'],
+                        'cause_header': response['cause_header'],
+                        'response_header': response['response_header'],
+                        'trouble': response['trouble'], 
+                        'cause': response['cause'], 
+                        'response': response['response'],
+                        'rated_users': response['_system_rated_users'] if '_system_rated_users' in response else [],
+                        'rating': response['_system_rating'] if '_system_rating' in response else 0,
+                        'score': 0,
+                    }
+                else:
+                    raise DocumentNotFoundException("es document: {} not found.".format(id))
+            else:
+                raise IndexNotFoundException("es index: {} not found.".format(config.TROUBLE_ES_INDEX_NAME))    
+        except:
+            raise
 
     def troubles_search(self, text, size = 10, min_score = 1.6, from_ = 0):
         try:
@@ -197,7 +225,6 @@ class TroubleShootRecommender():
                     rated_users = hits[0]['rated_users']
                     my_rating_info = [ru for ru in rated_users if ru['user'] == user_id]
                     judge = self.judge_rate(my_rating_info[0], rate_type, hits[0]['rating'])
-                    self.logger.info("judge: {}".format(judge))
                     for ru in rated_users:
                         if ru['user'] == user_id:
                             ru['positive'] = judge['positive']
@@ -427,5 +454,61 @@ class TroubleShootRecommender():
                 return io.BytesIO(buffer.getvalue())
             else:
                 raise IndexNotFoundException("es index: {} not found.".format(config.TROUBLE_ES_INDEX_NAME)) 
+        except:
+            raise
+
+    def user_rating_history_to_excel(self, bot_name, tz_offset):
+        try:
+            data = {
+                "user": [],
+                "user_name": [],
+                "channel": [],
+                "post_text": [],
+                "post_date": [],
+                "rated_date": [],
+                "doc_id": [],
+                "score": [],
+                "trouble": [],
+                "cause": [],
+                "response": [],
+                "positive": [],
+                "negative": [],
+                "comment": [],
+                "rating_score": []
+            }
+            filter = {'$and':[{'$or':[{'recommends.rated_users.positive':True},{'recommends.rated_users.negative':True}]},{'bot':bot_name}]}
+            histories = self.mongo_client.app.histories.find(filter).sort([("updatedAt", pymongo.ASCENDING),("createdAt", pymongo.ASCENDING)])
+            for history in histories:
+                for recommend in sorted(history['recommends'], key=lambda rc: rc['updatedAt']):
+                    for rated_user in sorted(recommend['rated_users'], key=lambda ru: ru['updatedAt']):
+                        if history['user'] == rated_user['user'] and (rated_user['positive'] == True or rated_user['negative'] == True):
+                            post_date = history['createdAt'] + datetime.timedelta(seconds=tz_offset) if tz_offset > 0 else history['createdAt'] - datetime.timedelta(seconds=abs(tz_offset))
+                            rated_date = rated_user['updatedAt'] + datetime.timedelta(seconds=tz_offset) if tz_offset > 0 else rated_user['updatedAt'] - datetime.timedelta(seconds=abs(tz_offset))
+                            comment = rated_user['negative_comment'] if rated_user['negative'] else rated_user['positive_comment']
+                            data['user'].append(rated_user['user'])
+                            data['user_name'].append(rated_user['user_name'])
+                            data['channel'].append(history['channel'])
+                            data['post_text'].append(history['text'])
+                            data['post_date'].append(post_date)
+                            data['rated_date'].append(rated_date)
+                            data['doc_id'].append(recommend['document_id'])
+                            data['score'].append(recommend['score'])
+                            data['trouble'].append(recommend['trouble'])
+                            data['cause'].append(recommend['cause'])
+                            data['response'].append(recommend['response'])
+                            data['positive'].append(rated_user['positive'])
+                            data['negative'].append(rated_user['negative'])
+                            data['comment'].append(comment)
+                            data['rating_score'].append(recommend['rating'])
+
+
+            df = pd.DataFrame(data)
+            df['positive'] = df['positive'].astype(int)
+            df['negative'] = df['negative'].astype(int)
+            
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer) as writer:
+                df.to_excel(writer, index=False)
+            return io.BytesIO(buffer.getvalue())
         except:
             raise

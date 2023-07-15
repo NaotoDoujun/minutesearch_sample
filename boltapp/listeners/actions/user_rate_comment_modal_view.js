@@ -1,6 +1,6 @@
 const { i18n } = require('../../locales');
 
-const userRateCommentModalViews = async (userinfo, ratingItem, my_rating_info) => {
+const userRateCommentModalViews = async (userinfo, ratingItem, my_rating_info, params) => {
   if (userinfo.user.locale === 'ja-JP') {
     i18n.setLocale('ja');
   }
@@ -13,7 +13,12 @@ const userRateCommentModalViews = async (userinfo, ratingItem, my_rating_info) =
   const view = {
     type: 'modal',
     external_id: 'comment_modal',
-    private_metadata: `${ratingItem.document_id}:${ratingItem.rate_type}`,
+    private_metadata: JSON.stringify({
+      channel: params.channel,
+      client_msg_id: params.client_msg_id,
+      document_id: ratingItem.document_id,
+      rate_type: ratingItem.rate_type,
+    }),
     callback_id: 'user-rate-comment',
     clear_on_close: true,
     title: {

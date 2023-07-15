@@ -16,6 +16,7 @@ const config = {
   DEFAULT_MAX_SIZE: process.env.DEFAULT_MAX_SIZE || 5,
   DEFAULT_MIN_SCORE: process.env.DEFAULT_MIN_SCORE || 1.65,
   DEFAULT_MAX_SCORE: process.env.DEFAULT_MAX_SCORE || 2,
+  GLOBAL_APPAPI_HOST: process.env.GLOBAL_APPAPI_HOST || 'localhost:8065',
 };
 
 module.exports = { config };

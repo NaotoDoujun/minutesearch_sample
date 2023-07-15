@@ -1,8 +1,11 @@
 {
-    "greeting": "*ようこそ, <@{{user}}> :house:*",
-    "settings_description": "最大表示件数と最少スコア閾値を設定します。",
+    "greeting": "*ようこそ, <@{{user}}>さん :house:*",
+    "settings_description": "最大表示件数と最小スコア閾値を設定します。",
     "settings_open_button": "設定を開く",
     "settings_title": "設定",
+    "download_title": "ダウンロード",
+    "download_description": "ユーザ評価歴Excelファイルをダウンロードします。",
+    "download_button": "ダウンロード",
     "size_label": "最大表示件数",
     "min_score_label": "最小スコア閾値",
     "size_error": "最大表示件数エラー。1以上{{max_size}}以下である必要があります。",

@@ -70,6 +70,18 @@ const troubleShootMessageCallback = async ({ message, client, say, logger }) => 
     const targetChannelName = userinfo.user.locale === 'ja-JP' ? config.SLACK_CHANNEL_NAME_JP : config.SLACK_CHANNEL_NAME_EN;
     const settings = await Database.getUserSettings(message.user, logger);
     const recommends = await appApi.troubleSearch(settings.size, settings.min_score, 0, message);
+
+    // save history
+    const history = {
+      client_msg_id: message.client_msg_id,
+      user: userinfo.user.id,
+      user_name: `${userinfo.user.real_name} / ${userinfo.user.name}`,
+      channel: message.channel,
+      text: message.text,
+      recommends: [],
+    };
+    await Database.setHistory(history, logger);
+
     const blocks = await troubleShootBlocks(userinfo, settings, message, recommends);
     if (recommends.data.total.value > 0) {
       if (message.channel_type !== 'channel') {
@@ -88,7 +100,7 @@ const troubleShootMessageCallback = async ({ message, client, say, logger }) => 
           channel: targetChannelName,
           username,
           icon_url: userinfo.user.profile.image_48,
-          text: `<#${message.channel}>: ${message.text}`,
+          text: `<#${message.channel}>:${message.text}`,
         };
 
         const user_result = await recursivePostMessage(client, user_message, logger);
