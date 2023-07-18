@@ -121,6 +121,9 @@ services:
       - appapi:/root/.cache
     environment:
       - TZ=Asia/Tokyo
+      - TROUBLE_FULL_TEXT_RATIO=1.0
+      - TROUBLE_EMBEDDINGS_RATIO=1.0
+      - TROUBLE_USER_RATING_RATIO=0.2
     depends_on:
       - elasticsearch
       - mongodb

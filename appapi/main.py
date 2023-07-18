@@ -123,6 +123,15 @@ def trouble_user_rating_history_download(bot_name: str = None, tz_offset: int = 
             headers={"Content-Disposition": 'attachment; filename="UserRatingHistories.xlsx"'})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.delete('/trouble_user_rating_reset/')
+def trouble_user_rating_reset(bot_name: str = None):
+    try:
+        return troubleshoot_recommender.reset_user_rating(bot_name)
+    except IndexNotFoundException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/text_summarize/{algorithm}")
 def text_summarize(item: Item, algorithm: AlgorithmName):

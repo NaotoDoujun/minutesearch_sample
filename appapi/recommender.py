@@ -177,9 +177,9 @@ class TroubleShootRecommender():
                             "source": score_formula,
                             "params": { 
                                 "query_vector": embedding,
-                                "full_text_ratio": 1.0,
-                                "embeddings_ratio": 1.0,
-                                "user_rating_ratio": 0.2
+                                "full_text_ratio": config.TROUBLE_FULL_TEXT_RATIO,
+                                "embeddings_ratio": config.TROUBLE_EMBEDDINGS_RATIO,
+                                "user_rating_ratio": config.TROUBLE_USER_RATING_RATIO
                             }
                         }
                     }
@@ -510,5 +510,30 @@ class TroubleShootRecommender():
             with pd.ExcelWriter(buffer) as writer:
                 df.to_excel(writer, index=False)
             return io.BytesIO(buffer.getvalue())
+        except:
+            raise
+
+    def reset_user_rating(self, bot_name):
+        try:
+            if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
+
+                results = helpers.scan(
+                    client=self.es,
+                    index=config.TROUBLE_ES_INDEX_NAME,
+                    query={"query": { "match_all" : {} }},
+                    size=500,
+                    scroll='1m',
+                    _source_includes=['_system_rated_users', '_system_rating']
+                )
+                # reset _system_rated_users and _system_rating
+                for item in results:
+                    change_doc = {"doc": {"_system_rated_users": [], "_system_rating": 0}}
+                    self.es.update(index=config.TROUBLE_ES_INDEX_NAME, body=change_doc, id=item['_id'])
+
+                # delete histories from mongodb
+                self.mongo_client.app.histories.delete_many({'bot':bot_name})
+                return {"ok": True}
+            else:
+                raise IndexNotFoundException("es index: {} not found.".format(config.TROUBLE_ES_INDEX_NAME)) 
         except:
             raise
