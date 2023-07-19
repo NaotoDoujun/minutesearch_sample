@@ -153,7 +153,7 @@ class TroubleShootRecommender():
     def troubles_search(self, text, size = 10, min_score = 1.6, from_ = 0):
         try:
             if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
-                aggs = self.aggs_rating()
+                extended_stats_rating = self.extended_stats_rating()
                 query = mojimoji.zen_to_han(mojimoji.han_to_zen(text, digit=False, ascii=False), kana=False)
                 embedding = self.model.encode(query)
                 score_formula = '''
@@ -162,6 +162,8 @@ class TroubleShootRecommender():
                     double raw_user_rating_score = doc['_system_rating'].size() == 0 ? 0 : doc['_system_rating'].value;
                     double max_rating_score = params.max_rating;
                     double min_rating_score = params.min_rating;
+                    double avg_rating_score = params.avg_rating;
+                    double std_rating_score = params.std_rating;
                     double full_text_score = sigmoid(raw_full_text_score, 2, 1) + 1.0;
                     double embeddings_score = raw_embeddings_score + 1.0;
                     // Min-Max Normalization
@@ -185,11 +187,13 @@ class TroubleShootRecommender():
                             "source": score_formula,
                             "params": { 
                                 "query_vector": embedding,
+                                "min_rating": extended_stats_rating['min'],
+                                "max_rating": extended_stats_rating['max'],
+                                "avg_rating": extended_stats_rating['avg'],
+                                "std_rating": extended_stats_rating['std_deviation'],
                                 "full_text_ratio": config.TROUBLE_FULL_TEXT_RATIO,
                                 "embeddings_ratio": config.TROUBLE_EMBEDDINGS_RATIO,
                                 "user_rating_ratio": config.TROUBLE_USER_RATING_RATIO,
-                                "min_rating": aggs['min'],
-                                "max_rating": aggs['max']
                             }
                         }
                     }
@@ -401,38 +405,21 @@ class TroubleShootRecommender():
             body=body
         )
     
-    def aggs_rating(self):
+    def extended_stats_rating(self):
         response = self.es.search(
             index=config.TROUBLE_ES_INDEX_NAME,
             body={
                 "size": 0,
                 "aggs": { 
-                    "max_rating": {
-                        "max": {
-                            "field": "_system_rating"
-                        } 
-                    },
-                    "min_rating": {
-                        "min": {
-                            "field": "_system_rating"
-                        }
-                    },
-                    "avg_rating": {
-                        "avg": {
+                    "extended_stats_rating": {
+                        "extended_stats": {
                             "field": "_system_rating"
                         }
                     }
                 }
             }
         )
-        result = {
-            'min': response.get('aggregations', {}).get('min_rating', {}).get('value', 0),
-            'max': response.get('aggregations', {}).get('max_rating', {}).get('value', 0),
-            'avg': response.get('aggregations', {}).get('avg_rating', {}).get('value', 0),
-            'total': response.get('hits', {}).get('total', {}).get('value', 0)
-        }
-        print(result)
-        return result
+        return response.get('aggregations', {}).get('extended_stats_rating', {})
     
     def user_rating_to_excel(self):
         try:
