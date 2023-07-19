@@ -18,11 +18,11 @@ const deleteConfirmModalViews = async (userinfo) => {
     },
     close: {
       type: 'plain_text',
-      text: 'No',
+      text: i18n.__('no'),
     },
     submit: {
       type: 'plain_text',
-      text: 'Yes',
+      text: i18n.__('yes'),
     },
     blocks: [
       {

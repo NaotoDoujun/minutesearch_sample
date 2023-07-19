@@ -85,40 +85,48 @@ const troubleShootMessageCallback = async ({ message, client, say, logger }) => 
 
     const blocks = await troubleShootBlocks(userinfo, settings, message, recommends);
     if (recommends.data.total.value > 0) {
-      const channel_info = await slackApi.getChannelInfo(client, message.channel); // Tier3
-      if (message.channel_type !== 'channel' || channel_info.channel.name === targetChannelName) {
+      if (message.channel_type !== 'channel') {
         await say({
           blocks,
           text: i18n.__('recommends_hit_count', { total: recommends.data.total.value }),
           thread_ts: message.ts,
         });
       } else {
-        // target channel have to be name
-        // cuz this script going to create the channel when its nothing.
-        const username = (
-          userinfo.user.profile.display_name ? userinfo.user.profile.display_name
-            : userinfo.user.name);
-        const user_message = {
-          channel: targetChannelName,
-          username,
-          icon_url: userinfo.user.profile.image_48,
-          text: `<#${message.channel}>:${message.text}`,
-        };
-
-        const user_result = await recursivePostMessage(client, user_message, logger);
-        if (user_result.ok) {
-          const bot_message = {
-            channel: targetChannelName,
+        const channel_info = await slackApi.getChannelInfo(client, message.channel); // Tier3
+        if (channel_info.channel.name === targetChannelName) {
+          await say({
             blocks,
             text: i18n.__('recommends_hit_count', { total: recommends.data.total.value }),
-            thread_ts: user_result.ts,
+            thread_ts: message.ts,
+          });
+        } else {
+          // target channel have to be name
+          // cuz this script going to create the channel when its nothing.
+          const username = (
+            userinfo.user.profile.display_name ? userinfo.user.profile.display_name
+              : userinfo.user.name);
+          const user_message = {
+            channel: targetChannelName,
+            username,
+            icon_url: userinfo.user.profile.image_48,
+            text: `<#${message.channel}>:${message.text}`,
           };
-          const bot_result = await recursivePostMessage(client, bot_message, logger);
-          if (!bot_result.ok && 'is_archived' in bot_result && bot_result.is_archived) {
+
+          const user_result = await recursivePostMessage(client, user_message, logger);
+          if (user_result.ok) {
+            const bot_message = {
+              channel: targetChannelName,
+              blocks,
+              text: i18n.__('recommends_hit_count', { total: recommends.data.total.value }),
+              thread_ts: user_result.ts,
+            };
+            const bot_result = await recursivePostMessage(client, bot_message, logger);
+            if (!bot_result.ok && 'is_archived' in bot_result && bot_result.is_archived) {
+              await say({ text: i18n.__('channel_archived', { channel: targetChannelName }) });
+            }
+          } else if (!user_result.ok && 'is_archived' in user_result && user_result.is_archived) {
             await say({ text: i18n.__('channel_archived', { channel: targetChannelName }) });
           }
-        } else if (!user_result.ok && 'is_archived' in user_result && user_result.is_archived) {
-          await say({ text: i18n.__('channel_archived', { channel: targetChannelName }) });
         }
       }
     }

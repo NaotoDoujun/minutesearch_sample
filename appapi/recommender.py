@@ -153,18 +153,26 @@ class TroubleShootRecommender():
     def troubles_search(self, text, size = 10, min_score = 1.6, from_ = 0):
         try:
             if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
+                aggs = self.aggs_rating()
                 query = mojimoji.zen_to_han(mojimoji.han_to_zen(text, digit=False, ascii=False), kana=False)
                 embedding = self.model.encode(query)
                 score_formula = '''
-                    if(doc['_system_rating'].size() == 0){
-                        ((sigmoid(_score, 2, 1) + 1.0) * params.full_text_ratio) + 
-                        ((cosineSimilarity(params.query_vector, 'trouble_vector') + 1.0) * params.embeddings_ratio) + 
-                        (1.0 * params.user_rating_ratio)
+                    double raw_full_text_score = _score;
+                    double raw_embeddings_score = cosineSimilarity(params.query_vector, 'trouble_vector');
+                    double raw_user_rating_score = doc['_system_rating'].size() == 0 ? 0 : doc['_system_rating'].value;
+                    double max_rating_score = params.max_rating;
+                    double min_rating_score = params.min_rating;
+                    double full_text_score = sigmoid(raw_full_text_score, 2, 1) + 1.0;
+                    double embeddings_score = raw_embeddings_score + 1.0;
+                    // Min-Max Normalization
+                    double user_rating_score = (raw_user_rating_score - min_rating_score) / (max_rating_score - min_rating_score);
+                    if (user_rating_score.isNaN() || user_rating_score.isInfinite()) {
+                        user_rating_score = 1.5;
                     } else {
-                        ((sigmoid(_score, 2, 1) + 1.0) * params.full_text_ratio) + 
-                        ((cosineSimilarity(params.query_vector, 'trouble_vector') + 1.0) * params.embeddings_ratio) +
-                        ((sigmoid(doc['_system_rating'].value, 2, 1) + 1.0) * params.user_rating_ratio)
+                        user_rating_score += 1.0;
                     }
+                    double total_score = (full_text_score * params.full_text_ratio) + (embeddings_score * params.embeddings_ratio) + (user_rating_score * params.user_rating_ratio);
+                    return total_score;
                 '''.strip()
                 script_query = {
                     "script_score": {
@@ -179,7 +187,9 @@ class TroubleShootRecommender():
                                 "query_vector": embedding,
                                 "full_text_ratio": config.TROUBLE_FULL_TEXT_RATIO,
                                 "embeddings_ratio": config.TROUBLE_EMBEDDINGS_RATIO,
-                                "user_rating_ratio": config.TROUBLE_USER_RATING_RATIO
+                                "user_rating_ratio": config.TROUBLE_USER_RATING_RATIO,
+                                "min_rating": aggs['min'],
+                                "max_rating": aggs['max']
                             }
                         }
                     }
@@ -390,6 +400,39 @@ class TroubleShootRecommender():
             id=document_id,
             body=body
         )
+    
+    def aggs_rating(self):
+        response = self.es.search(
+            index=config.TROUBLE_ES_INDEX_NAME,
+            body={
+                "size": 0,
+                "aggs": { 
+                    "max_rating": {
+                        "max": {
+                            "field": "_system_rating"
+                        } 
+                    },
+                    "min_rating": {
+                        "min": {
+                            "field": "_system_rating"
+                        }
+                    },
+                    "avg_rating": {
+                        "avg": {
+                            "field": "_system_rating"
+                        }
+                    }
+                }
+            }
+        )
+        result = {
+            'min': response.get('aggregations', {}).get('min_rating', {}).get('value', 0),
+            'max': response.get('aggregations', {}).get('max_rating', {}).get('value', 0),
+            'avg': response.get('aggregations', {}).get('avg_rating', {}).get('value', 0),
+            'total': response.get('hits', {}).get('total', {}).get('value', 0)
+        }
+        print(result)
+        return result
     
     def user_rating_to_excel(self):
         try:
