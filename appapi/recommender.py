@@ -513,7 +513,7 @@ class TroubleShootRecommender():
         except:
             raise
 
-    def reset_user_rating(self, bot_name):
+    def delete_user_rating(self, bot_name):
         try:
             if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):
 

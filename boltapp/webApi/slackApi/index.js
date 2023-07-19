@@ -1,4 +1,16 @@
 /**
+ * getChannelList
+ * @param {*} client
+ * @returns
+ *
+ * Tier 2
+ */
+const getChannelList = async (client) => {
+  const result = await client.conversations.list();
+  return result;
+};
+
+/**
  * getChannelById
  * @param {*} client
  * @param {*} channelId
@@ -7,13 +19,13 @@
  * Tier 2
  */
 const getChannelById = async (client, channelId) => {
-  const list = await client.conversations.list();
+  const list = await getChannelList(client);
   const channel = list.channels.find((conversation) => conversation.id === channelId);
   return typeof channel === 'undefined' ? { id: channelId, name: '', is_channel: false } : channel;
 };
 
 /**
- *
+ * getChannelByName
  * @param {*} client
  * @param {*} channelName
  * @returns
@@ -21,9 +33,64 @@ const getChannelById = async (client, channelId) => {
  * Tier 2
  */
 const getChannelByName = async (client, channelName) => {
-  const list = await client.conversations.list();
+  const list = await getChannelList(client);
   const channels = list.channels.filter((conversation) => conversation.name === channelName);
   return channels.length > 0 ? channels[0] : null;
+};
+
+/**
+ * getChannelInfo
+ * @param {*} client
+ * @param {*} channelId
+ * @returns
+ *
+ * Tier 3
+ */
+const getChannelInfo = async (client, channelId) => {
+  const result = await client.conversations.info({ channel: channelId });
+  return result;
+};
+
+/**
+ * cleanupChannelByName
+ * @param {*} client
+ * @param {*} channelName
+ * @param {*} logger
+ *
+ * Tier2, 3
+ */
+const cleanupChannelByName = async (client, userToken, channelName, logger) => {
+  const target = await getChannelByName(client, channelName);
+  if (target) {
+    const history = await client.conversations.history({ channel: target.id });
+    Object.values(history.messages).forEach(async (h_message) => {
+      const replies = await client.conversations.replies({ channel: target.id, ts: h_message.ts });
+      Object.values(replies.messages).forEach(async (r_message) => {
+        try {
+          // need user token chat:write
+          await client.chat.delete({
+            token: userToken,
+            channel: target.id,
+            ts: r_message.ts,
+            as_user: true,
+          });
+        } catch (r_error) {
+          logger.error(r_error);
+        }
+      });
+      try {
+        // need user token chat:write
+        await client.chat.delete({
+          token: userToken,
+          channel: target.id,
+          ts: h_message.ts,
+          as_user: true,
+        });
+      } catch (h_error) {
+        logger.error(h_error);
+      }
+    });
+  }
 };
 
 /**
@@ -190,8 +257,11 @@ const viewsPush = async (client, params) => {
 };
 
 module.exports = {
+  getChannelList,
   getChannelById,
   getChannelByName,
+  getChannelInfo,
+  cleanupChannelByName,
   getActiveMembers,
   getUserInfo,
   createChannel,

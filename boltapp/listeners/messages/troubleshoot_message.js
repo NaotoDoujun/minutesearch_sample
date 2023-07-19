@@ -63,6 +63,7 @@ const recursivePostMessage = async (client, message, logger) => {
 
 const troubleShootMessageCallback = async ({ message, client, say, logger }) => {
   try {
+    if (!('user' in message)) return;
     const userinfo = await slackApi.getUserInfo(client, message.user);
     if (userinfo.user.locale === 'ja-JP') {
       i18n.setLocale('ja');
@@ -84,7 +85,8 @@ const troubleShootMessageCallback = async ({ message, client, say, logger }) => 
 
     const blocks = await troubleShootBlocks(userinfo, settings, message, recommends);
     if (recommends.data.total.value > 0) {
-      if (message.channel_type !== 'channel') {
+      const channel_info = await slackApi.getChannelInfo(client, message.channel); // Tier3
+      if (message.channel_type !== 'channel' || channel_info.channel.name === targetChannelName) {
         await say({
           blocks,
           text: i18n.__('recommends_hit_count', { total: recommends.data.total.value }),

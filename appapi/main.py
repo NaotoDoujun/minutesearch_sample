@@ -124,10 +124,10 @@ def trouble_user_rating_history_download(bot_name: str = None, tz_offset: int = 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@app.delete('/trouble_user_rating_reset/')
-def trouble_user_rating_reset(bot_name: str = None):
+@app.delete('/trouble_user_rating_delete/')
+def trouble_user_rating_delete(bot_name: str = None):
     try:
-        return troubleshoot_recommender.reset_user_rating(bot_name)
+        return troubleshoot_recommender.delete_user_rating(bot_name)
     except IndexNotFoundException as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:

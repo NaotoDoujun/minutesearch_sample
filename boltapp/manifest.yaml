@@ -19,7 +19,9 @@ oauth_config:
       - chat:write
       - chat:write.customize
       - im:history
-      - users.read
+      - users:read
+    user:
+      - chat:write
 settings:
   event_subscriptions:
     bot_events:

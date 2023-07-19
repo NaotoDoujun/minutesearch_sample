@@ -5,6 +5,7 @@ const config = {
   BOT_NAME: process.env.BOT_NAME || 'slackbot',
   BOT_PORT: process.env.BOT_PORT || 3000,
   SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN,
+  SLACK_USER_TOKEN: process.env.SLACK_USER_TOKEN,
   SLACK_SIGNING_SECRET: process.env.SLACK_SIGNING_SECRET,
   SLACK_APP_TOKEN: process.env.SLACK_APP_TOKEN,
   SLACK_SOCKET_MODE: process.env.SLACK_SOCKET_MODE || true,

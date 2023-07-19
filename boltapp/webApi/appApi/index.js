@@ -23,4 +23,15 @@ const troubleRecordComment = async (commentItem) => {
   return result;
 };
 
-module.exports = { toubleGetSource, troubleSearch, troubleUserRate, troubleRecordComment };
+const troubleUserRatingDelete = async (bot_name) => {
+  const result = await axios.delete(`http://${apihost}/trouble_user_rating_delete/?bot_name=${bot_name}`);
+  return result;
+};
+
+module.exports = {
+  toubleGetSource,
+  troubleSearch,
+  troubleUserRate,
+  troubleRecordComment,
+  troubleUserRatingDelete,
+};
