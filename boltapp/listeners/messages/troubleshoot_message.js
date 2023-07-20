@@ -63,7 +63,6 @@ const recursivePostMessage = async (client, message, logger) => {
 
 const troubleShootMessageCallback = async ({ message, client, say, logger }) => {
   try {
-    if (!('user' in message)) return;
     const userinfo = await slackApi.getUserInfo(client, message.user);
     if (userinfo.user.locale === 'ja-JP') {
       i18n.setLocale('ja');
