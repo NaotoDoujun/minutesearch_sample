@@ -8,19 +8,16 @@ const settingSchema = new mongoose.Schema({
   min_score: { type: Number, default: config.DEFAULT_MIN_SCORE },
 });
 
-const ratedUserSchema = new mongoose.Schema(
-  {
+const ratedUserSchema = new mongoose.Schema({
     user: { type: String },
     user_name: { type: String },
     positive: { type: Boolean, default: false },
     negative: { type: Boolean, default: false },
     positive_comment: { type: String },
-    negative_comment: { type: String } },
-  { timestamps: true },
-);
+    negative_comment: { type: String },
+});
 
-const recommendSchema = new mongoose.Schema(
-  {
+const recommendSchema = new mongoose.Schema({
     document_id: { type: String },
     trouble_header: { type: String },
     cause_header: { type: String },
@@ -30,9 +27,8 @@ const recommendSchema = new mongoose.Schema(
     response: { type: String },
     rated_users: [ratedUserSchema],
     rating: { type: Number },
-    score: { type: Number } },
-  { timestamps: true },
-);
+    score: { type: Number },
+});
 
 const historySchema = new mongoose.Schema(
   {
@@ -48,5 +44,3 @@ const historySchema = new mongoose.Schema(
 
 exports.Setting = mongoose.model('Setting', settingSchema);
 exports.History = mongoose.model('History', historySchema);
-exports.Recommend = mongoose.model('Recommend', recommendSchema);
-exports.RatedUser = mongoose.model('RatedUser', ratedUserSchema);

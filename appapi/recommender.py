@@ -509,11 +509,11 @@ class TroubleShootRecommender():
             filter = {'$and':[{'$or':[{'recommends.rated_users.positive':True},{'recommends.rated_users.negative':True}]},{'bot':bot_name}]}
             histories = self.mongo_client.app.histories.find(filter).sort([("updatedAt", pymongo.ASCENDING),("createdAt", pymongo.ASCENDING)])
             for history in histories:
-                for recommend in sorted(history['recommends'], key=lambda rc: rc['updatedAt']):
-                    for rated_user in sorted(recommend['rated_users'], key=lambda ru: ru['updatedAt']):
+                for recommend in history['recommends']:
+                    for rated_user in recommend['rated_users']:
                         if history['user'] == rated_user['user'] and (rated_user['positive'] == True or rated_user['negative'] == True):
                             post_date = history['createdAt'] + datetime.timedelta(seconds=tz_offset) if tz_offset > 0 else history['createdAt'] - datetime.timedelta(seconds=abs(tz_offset))
-                            rated_date = rated_user['updatedAt'] + datetime.timedelta(seconds=tz_offset) if tz_offset > 0 else rated_user['updatedAt'] - datetime.timedelta(seconds=abs(tz_offset))
+                            rated_date = history['updatedAt'] + datetime.timedelta(seconds=tz_offset) if tz_offset > 0 else history['updatedAt'] - datetime.timedelta(seconds=abs(tz_offset))
                             comment = rated_user['negative_comment'] if rated_user['negative'] else rated_user['positive_comment']
                             data['user'].append(rated_user['user'])
                             data['user_name'].append(rated_user['user_name'])

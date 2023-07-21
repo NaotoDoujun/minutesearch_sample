@@ -39,6 +39,8 @@
     "paging_from_to": "From {{from}} to {{to}}", 
     "notify_pressed_good": "Pressed Good Button",
     "notify_pressed_bad": "Pressed Bad Button",
+    "delete_completed_modal_title": "Delete Completed.",
+    "delete_completed_modal_description": "Process completed successfully.",
     "yes": "Yes",
     "no": "No"
 }

@@ -213,7 +213,6 @@ const moreModalViews = async (userinfo, settings, recommends, from, message) => 
 
   const view = {
     type: 'modal',
-    external_id: 'more_modal',
     title: {
       type: 'plain_text',
       text: title_txt,

@@ -30,9 +30,9 @@ const updateHistory = async (ratingItem, history, score, logger) => {
         positive_comment: '',
         negative_comment: '',
       });
-      if ('markModified' in h_recommend) {
-        h_recommend.markModified('rated_users');
-      }
+      // if ('markModified' in h_recommend) {
+      //   h_recommend.markModified('rated_users');
+      // }
       h_recommend.rating += 1;
     }
   } else {
@@ -51,9 +51,9 @@ const updateHistory = async (ratingItem, history, score, logger) => {
       });
     }
     history.recommends.push(o_recommend.data);
-    if ('markModified' in history) {
-      history.markModified('recommends');
-    }
+    // if ('markModified' in history) {
+    //   history.markModified('recommends');
+    // }
   }
   await Database.setHistory(history, logger);
 };
@@ -210,7 +210,6 @@ const rateGoodFromView = async (body, client, context, logger) => {
 
     const view = {
       type: 'modal',
-      external_id: 'more_modal',
       title: {
         type: 'plain_text',
         text: body.view.title.text,
@@ -221,7 +220,7 @@ const rateGoodFromView = async (body, client, context, logger) => {
     // redraw view blocks
     await slackApi.viewsUpdate(client, {
       token: context.botToken,
-      external_id: body.view.external_id,
+      view_id: body.view.id,
       view,
     });
 
