@@ -53,62 +53,62 @@ services:
     depends_on:
       - elasticsearch
     restart: always
-  # pdfindexer:
-  #   build:
-  #     context: ./pdf_indexer
-  #     dockerfile: ./Dockerfile
-  #   image: pdfindexer
-  #   container_name: inputindexer
-  #   volumes:
-  #     - inputindexer:/root/.cache
-  #     - ./sample:/app/sample:ro
-  #   environment:
-  #     - TZ=Asia/Tokyo
-  #     - ES_INDEX_NAME=pdfdoc
-  #     - TARGET_DIRECTORY=/app/sample/inputs
-  #     - TOPPAGE_ONLY=true
-  #     - MAPPING_JSON_PATH=/app/es_settings/pdfdoc_mapping.json
-  #     - SETTING_JSON_PATH=/app/es_settings/pdfdoc_setting.json
-  #   depends_on:
-  #     - elasticsearch
-  #   restart: always
-  # minuteindexer:
-  #   image: pdfindexer
-  #   container_name: minuteindexer
-  #   volumes:
-  #     - minuteindexer:/root/.cache
-  #     - ./sample:/app/sample:ro
-  #   environment:
-  #     - TZ=Asia/Tokyo
-  #     - ES_INDEX_NAME=minutes
-  #     - TARGET_DIRECTORY=/app/sample/minutes
-  #     - TOPPAGE_ONLY=true
-  #     - MAPPING_JSON_PATH=/app/es_settings/minutes_mapping.json
-  #     - SETTING_JSON_PATH=/app/es_settings/minutes_setting.json
-  #   depends_on:
-  #     - elasticsearch
-  #   restart: always
-  # troubleindexer:
-  #   build:
-  #     context: ./excel_indexer
-  #     dockerfile: ./Dockerfile
-  #   image: excelindexer
-  #   container_name: troubleindexer
-  #   volumes:
-  #     - troubleindexer:/root/.cache
-  #     - ./infopost:/app/infopost:ro
-  #   environment:
-  #     TZ: Asia/Tokyo
-  #     ES_INDEX_NAME: troubles
-  #     TARGET_DIRECTORY: /app/infopost/troubles
-  #     MAPPING_JSON_PATH: /app/es_settings/troubles_mapping.json
-  #     SETTING_JSON_PATH: /app/es_settings/troubles_setting.json
-  #     HEADER_MAPPING: '{"trouble_header": 0, "cause_header": 1, "response_header": 2}'
-  #     DATA_MAPPING: '{"trouble": 0, "cause": 1, "response": 2}'
-  #     EMBEDDING_COLUMNS: '{"trouble_vector": 0}'
-  #   depends_on:
-  #     - elasticsearch
-  #   restart: always
+  pdfindexer:
+    build:
+      context: ./pdf_indexer
+      dockerfile: ./Dockerfile
+    image: pdfindexer
+    container_name: inputindexer
+    volumes:
+      - inputindexer:/root/.cache
+      - ./sample:/app/sample:ro
+    environment:
+      - TZ=Asia/Tokyo
+      - ES_INDEX_NAME=pdfdoc
+      - TARGET_DIRECTORY=/app/sample/inputs
+      - TOPPAGE_ONLY=true
+      - MAPPING_JSON_PATH=/app/es_settings/pdfdoc_mapping.json
+      - SETTING_JSON_PATH=/app/es_settings/pdfdoc_setting.json
+    depends_on:
+      - elasticsearch
+    restart: always
+  minuteindexer:
+    image: pdfindexer
+    container_name: minuteindexer
+    volumes:
+      - minuteindexer:/root/.cache
+      - ./sample:/app/sample:ro
+    environment:
+      - TZ=Asia/Tokyo
+      - ES_INDEX_NAME=minutes
+      - TARGET_DIRECTORY=/app/sample/minutes
+      - TOPPAGE_ONLY=true
+      - MAPPING_JSON_PATH=/app/es_settings/minutes_mapping.json
+      - SETTING_JSON_PATH=/app/es_settings/minutes_setting.json
+    depends_on:
+      - elasticsearch
+    restart: always
+  troubleindexer:
+    build:
+      context: ./excel_indexer
+      dockerfile: ./Dockerfile
+    image: excelindexer
+    container_name: troubleindexer
+    volumes:
+      - troubleindexer:/root/.cache
+      - ./infopost:/app/infopost:ro
+    environment:
+      TZ: Asia/Tokyo
+      ES_INDEX_NAME: troubles
+      TARGET_DIRECTORY: /app/infopost/troubles
+      MAPPING_JSON_PATH: /app/es_settings/troubles_mapping.json
+      SETTING_JSON_PATH: /app/es_settings/troubles_setting.json
+      HEADER_MAPPING: '{"trouble_header": 0, "cause_header": 1, "response_header": 2}'
+      DATA_MAPPING: '{"trouble": 0, "cause": 1, "response": 2}'
+      EMBEDDING_COLUMNS: '{"trouble_vector": 0}'
+    depends_on:
+      - elasticsearch
+    restart: always
   appapi:
     build:
       context: ./appapi
@@ -123,28 +123,28 @@ services:
       - TZ=Asia/Tokyo
       - TROUBLE_FULL_TEXT_RATIO=1.0
       - TROUBLE_EMBEDDINGS_RATIO=1.0
-      - TROUBLE_USER_RATING_RATIO=0.2
+      - TROUBLE_USER_RATING_RATIO=0
     depends_on:
       - elasticsearch
       - mongodb
     restart: always
-  # front:
-  #   build:
-  #     context: ./front
-  #     dockerfile: ./Dockerfile
-  #     args:
-  #       - REACT_APP_APPAPI_HOST=http://localhost:8065
-  #       - REACT_APP_INPUT_DIR_NAME=inputs
-  #       - REACT_APP_MINUTE_DIR_NAME=minutes
-  #   image: front
-  #   container_name: front
-  #   volumes:
-  #     - ./sample:/usr/share/nginx/html/media:ro
-  #   ports:
-  #     - 80:80
-  #   depends_on:
-  #     - appapi
-  #   restart: always
+  front:
+    build:
+      context: ./front
+      dockerfile: ./Dockerfile
+      args:
+        - REACT_APP_APPAPI_HOST=http://localhost:8065
+        - REACT_APP_INPUT_DIR_NAME=inputs
+        - REACT_APP_MINUTE_DIR_NAME=minutes
+    image: front
+    container_name: front
+    volumes:
+      - ./sample:/usr/share/nginx/html/media:ro
+    ports:
+      - 80:80
+    depends_on:
+      - appapi
+    restart: always
   boltapp:
     build:
       context: ./boltapp
