@@ -8,7 +8,7 @@
     "join_channels_description": "このBotを公開チャンネルに参加させます。",
     "join_channels_button": "参加",
 	"download_title": "*ダウンロード*",
-	"download_description": "ユーザ評価歴Excelファイルをダウンロードします。",
+	"download_description": "ユーザ操作歴Excelファイルをダウンロードします。",
 	"download_button": "ダウンロード",
 	"user_rating_delete_title": "*ユーザ評価削除*",
 	"user_rating_delete_description": "ユーザ評価、チャンネル: {{channel}}上のすべての投稿を削除します。",

@@ -30,9 +30,6 @@ const updateHistory = async (ratingItem, history, score, logger) => {
         positive_comment: '',
         negative_comment: '',
       });
-      // if ('markModified' in h_recommend) {
-      //   h_recommend.markModified('rated_users');
-      // }
       h_recommend.rating -= 1;
     }
   } else {
@@ -51,9 +48,6 @@ const updateHistory = async (ratingItem, history, score, logger) => {
       });
     }
     history.recommends.push(o_recommend.data);
-    // if ('markModified' in history) {
-    //   history.markModified('recommends');
-    // }
   }
   await Database.setHistory(history, logger);
 };

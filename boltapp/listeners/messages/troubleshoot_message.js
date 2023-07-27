@@ -78,7 +78,7 @@ const troubleShootMessageCallback = async ({ message, client, say, logger }) => 
       user_name: `${userinfo.user.real_name} / ${userinfo.user.name}`,
       channel: message.channel,
       text: message.text,
-      recommends: [],
+      recommends: recommends.data.hits,
     };
     await Database.setHistory(history, logger);
 

@@ -21,6 +21,17 @@ const openMoreModalActionCallback = async ({ ack, body, client, context, logger 
     const settings = await Database.getUserSettings(userinfo.user.id, logger);
     const from = settings.size;
     const recommends = await appApi.troubleSearch(settings.size, settings.min_score, from, message);
+
+    // add recommends
+    Object.values(recommends.data.hits).forEach((recommend) => {
+      const h_recommend = (
+        history.recommends.find(({ document_id }) => document_id === recommend.document_id));
+        if (!h_recommend) {
+          history.recommends.push(recommend);
+        }
+    });
+    await Database.setHistory(history, logger);
+
     await slackApi.viewsOpen(client, {
       token: context.botToken,
       trigger_id: body.trigger_id,

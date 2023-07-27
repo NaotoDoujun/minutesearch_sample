@@ -8,7 +8,7 @@
     "join_channels_description": "The bot join to public channels.",
     "join_channels_button": "Join",
     "download_title": "*Download*",
-    "download_description": "Download user rating history excel file.",
+    "download_description": "Download user operating history excel file.",
     "download_button": "Download",
     "user_rating_delete_title": "*Delete User-Rating*",
     "user_rating_delete_description": "Delete User-Rating and all posts on the target channel: {{channel}}",

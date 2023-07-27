@@ -1,5 +1,4 @@
-const { config } = require('../config');
-const db = config.NODE_ENV === 'production' ? require('./mongoose').mongoDB : require('./sqlite').sqliteDB;
+const db = require('./mongoose').mongoDB;
 
 class Database {
   static async connect(logger) {

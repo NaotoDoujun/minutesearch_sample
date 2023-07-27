@@ -10,7 +10,7 @@ const { userRateBadActionCallback } = require('./user_rate_bad_action');
 module.exports.register = (app) => {
   app.action('open_settings_modal_button', openSettingsModalActionCallback);
   app.action('join_channels_button', openJoinChannelsModalActionCallback);
-  app.action('download_user_ratig_history_button', ({ ack }) => ack());
+  app.action('download_user_operating_history_button', ({ ack }) => ack());
   app.action('user_ratig_delete_button', openDeleteConfirmModalActionCallback);
   app.action('open_more_modal_button', openMoreModalActionCallback);
   app.action('paging_prev_button', pagingPrevActionCallback);

@@ -25,6 +25,17 @@ const pagingNextActionCallback = async ({ ack, body, client, context, logger }) 
       params.from,
       message,
     );
+
+    // add recommends
+    Object.values(recommends.data.hits).forEach((recommend) => {
+      const h_recommend = (
+        history.recommends.find(({ document_id }) => document_id === recommend.document_id));
+        if (!h_recommend) {
+          history.recommends.push(recommend);
+        }
+    });
+    await Database.setHistory(history, logger);
+
     await slackApi.viewsUpdate(client, {
       token: context.botToken,
       view_id: body.view.id,

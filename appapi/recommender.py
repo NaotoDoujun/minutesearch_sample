@@ -543,6 +543,67 @@ class TroubleShootRecommender():
         except:
             raise
 
+    def user_operating_history_to_excel(self, bot_name, tz_offset):
+        try:
+            data = {
+                "user": [],
+                "user_name": [],
+                "channel": [],
+                "post_text": [],
+                "post_date": [],
+                "rated_date": [],
+                "doc_id": [],
+                "score": [],
+                "trouble": [],
+                "cause": [],
+                "response": [],
+                "positive": [],
+                "negative": [],
+                "comment": [],
+                "rating_score": []
+            }
+            filter = {'bot':bot_name}
+            histories = self.mongo_client.app.histories.find(filter).sort([("updatedAt", pymongo.ASCENDING),("createdAt", pymongo.ASCENDING)])
+            for history in histories:
+                for recommend in sorted(history['recommends'], key=lambda rc: rc['score'], reverse=True):
+                    post_date = history['createdAt'] + datetime.timedelta(seconds=tz_offset) if tz_offset > 0 else history['createdAt'] - datetime.timedelta(seconds=abs(tz_offset))
+                    rated_date = history['updatedAt'] + datetime.timedelta(seconds=tz_offset) if tz_offset > 0 else history['updatedAt'] - datetime.timedelta(seconds=abs(tz_offset))
+                    data['user'].append(history['user'])
+                    data['user_name'].append(history['user_name'])
+                    data['channel'].append(history['channel'])
+                    data['post_text'].append(history['text'])
+                    data['post_date'].append(post_date)
+                    data['doc_id'].append(recommend['document_id'])
+                    data['score'].append(recommend['score'])
+                    data['trouble'].append(recommend['trouble'])
+                    data['cause'].append(recommend['cause'])
+                    data['response'].append(recommend['response'])
+                    data['rating_score'].append(recommend['rating'])
+                    found = next((rated_user for rated_user in recommend['rated_users'] if history['user'] == rated_user['user']), None)
+                    if found is not None:
+                        comment = found['negative_comment'] if found['negative'] else found['positive_comment']
+                        data['rated_date'].append(rated_date)
+                        data['positive'].append(found['positive'])
+                        data['negative'].append(found['negative'])
+                        data['comment'].append(comment)
+                    else:
+                        data['rated_date'].append(post_date)
+                        data['positive'].append(False)
+                        data['negative'].append(False)
+                        data['comment'].append('')
+
+
+            df = pd.DataFrame(data)
+            df['positive'] = df['positive'].astype(int)
+            df['negative'] = df['negative'].astype(int)
+            
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer) as writer:
+                df.to_excel(writer, index=False)
+            return io.BytesIO(buffer.getvalue())
+        except:
+            raise
+
     def delete_user_rating(self, bot_name):
         try:
             if self.es.indices.exists(index=config.TROUBLE_ES_INDEX_NAME):

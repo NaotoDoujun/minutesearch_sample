@@ -124,6 +124,15 @@ def trouble_user_rating_history_download(bot_name: str = None, tz_offset: int = 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
+@app.get('/trouble_user_operating_history_download/')
+def trouble_user_operating_history_download(bot_name: str = None, tz_offset: int = 0):
+    try:
+        return StreamingResponse(troubleshoot_recommender.user_operating_history_to_excel(bot_name, tz_offset), 
+            media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={"Content-Disposition": 'attachment; filename="UserOperatingHistories.xlsx"'})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 @app.delete('/trouble_user_rating_delete/')
 def trouble_user_rating_delete(bot_name: str = None):
     try:
