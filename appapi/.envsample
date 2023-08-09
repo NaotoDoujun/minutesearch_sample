@@ -1,0 +1,5 @@
+# Replace with your tokens
+OPENAI_API_KEY=<your token>
+OPENAI_API_ENDPOINT=<your api endpoint>
+OPENAI_API_TYPE=<your api type>
+OPENAI_API_VERSION=<your api version>

@@ -42,5 +42,7 @@
 	"delete_completed_modal_title": "削除完了",
     "delete_completed_modal_description": "削除処理が正常に完了しました。",
 	"yes": "はい",
-    "no": "いいえ"
+    "no": "いいえ",
+	"error_title": "エラー",
+    "error_description": "この操作は投稿者のみ操作可能です。"
 }

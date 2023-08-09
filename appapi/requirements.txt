@@ -3,6 +3,7 @@ pandas
 openpyxl
 datasets
 mojimoji
+python-dotenv
 ###### Requirements with Version Specifiers ######`
 fastapi==0.78.0 
 uvicorn==0.17.6 
@@ -21,4 +22,6 @@ tinysegmenter==0.4
 langid==1.1.6
 pyknp==0.6.1
 pymongo==4.4.1
+azure-core==1.28.0
+openai==0.27.8
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.1/en_core_web_sm-3.4.1.tar.gz
