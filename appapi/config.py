@@ -26,8 +26,9 @@ GINZA_MODEL = 'ja_ginza_electra'
 # Sentence-BERT based. for sentence_transformers
 SENTENCE_MODEL = 'stsb-xlm-r-multilingual'
 
-# Azure OPENAI
+# Azure OpenAI
 OPENAI_API_KEY=os.getenv('OPENAI_API_KEY')
 OPENAI_API_ENDPOINT=os.getenv('OPENAI_API_ENDPOINT')
 OPENAI_API_TYPE=os.getenv('OPENAI_API_TYPE', 'azure')
-OPENAI_API_VERSION=os.getenv('OPENAI_API_VERSION')
+OPENAI_API_VERSION=os.getenv('OPENAI_API_VERSION', '2023-07-01-preview')
+OPENAI_GPT_DEPLOYMENT_NAME=os.getenv('OPENAI_GPT_DEPLOYMENT_NAME')

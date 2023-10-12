@@ -23,5 +23,5 @@ langid==1.1.6
 pyknp==0.6.1
 pymongo==4.4.1
 azure-core==1.28.0
-openai==0.27.8
+openai==0.28.1
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.1/en_core_web_sm-3.4.1.tar.gz
