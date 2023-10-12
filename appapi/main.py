@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from recommender import (MinuteRecommender, TroubleShootRecommender, RateType,
                           IndexNotFoundException, DocumentNotFoundException, UserRateRecordFailedException)
 from summarizer import SUMYSummarizer, AlgorithmName
+from azureai import GPT35
 
 class Item(BaseModel):
     text: str
@@ -37,6 +38,7 @@ logger = logging.getLogger('uvicorn')
 minute_recommender = MinuteRecommender(logger)
 troubleshoot_recommender = TroubleShootRecommender(logger)
 text_summarizer = SUMYSummarizer(logger)
+gpt35 = GPT35(logger)
 
 @app.get("/")
 def read_root():
@@ -146,6 +148,13 @@ def trouble_user_rating_delete(bot_name: str = None):
 def text_summarize(item: Item, algorithm: AlgorithmName):
     try:
         return text_summarizer.summarize(text=item.text, algorithm=algorithm.value)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/gpt35_chat/")
+def gpt35_chat(item: Item):
+    try:
+        return gpt35.chat(message=item.text)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
